@@ -15,9 +15,9 @@ import com.vn.advent.util.FileUtil;
 public class Day1 {
 
 	public static void main(String[] args) {
-		FileUtil.runCodeForLinesInFile("input1_1", Day1::partOne);
-		FileUtil.runCodeForLinesInFile("input1_1", Day1::partTwo);
-		FileUtil.runCodeForLinesInFile("input1_1", Day1::partTwo_Alt);
+		FileUtil.runCodeForLinesInFile("input_1", Day1::partOne);
+		FileUtil.runCodeForLinesInFile("input_1", Day1::partTwo);
+		FileUtil.runCodeForLinesInFile("input_1", Day1::partTwo_Alt);
 	}
 
 	private static void partOne(Stream<String> lines) {
