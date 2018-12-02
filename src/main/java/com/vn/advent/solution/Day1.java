@@ -12,20 +12,20 @@ import java.util.stream.Stream;
 
 import com.vn.advent.util.FileUtil;
 
-public class Day1 {
+public class Day1 implements Solution {
 
 	public static void main(String[] args) {
-		FileUtil.runCodeForLinesInFile("input_1", Day1::partOne);
-		FileUtil.runCodeForLinesInFile("input_1", Day1::partTwo);
-		FileUtil.runCodeForLinesInFile("input_1", Day1::partTwo_Alt);
+		Solution solution = new Day1();
+		solution.run();
+		FileUtil.runCodeForLinesInFile(solution.getInputFileName(),
+				Day1::partTwo_Alt);
 	}
 
-	private static void partOne(Stream<String> lines) {
-		System.out.println(String.format("PART 1: %d",
-				lines.mapToLong(Long::parseLong).sum()));
+	public void partOne(Stream<String> lines) {
+		System.out.print(lines.mapToLong(Long::parseLong).sum());
 	}
 
-	private static void partTwo(Stream<String> lines) {
+	public void partTwo(Stream<String> lines) {
 		final long INIT_FREQ = 0;
 		final Set<Long> frequencies = new HashSet<>();
 		frequencies.add(INIT_FREQ);
@@ -50,7 +50,7 @@ public class Day1 {
 		}
 
 		if (frequencyFoundTwice.get()) {
-			System.out.println(String.format("PART 2: %d", lastFrequency));
+			System.out.print(lastFrequency);
 		}
 	}
 
@@ -76,8 +76,8 @@ public class Day1 {
 				.findFirst();
 
 		if (firstDuplicateFrequency.isPresent()) {
-			System.out.println(
-					String.format("PART 2: %d", firstDuplicateFrequency.get()));
+			System.out.print(String.format("Alternate solution to PART 2: %d",
+					firstDuplicateFrequency.get()));
 		} else {
 			applyChangeListToFrequencies(changeList, frequenciesStack);
 		}
@@ -109,6 +109,11 @@ public class Day1 {
 		private Set<Long> getFrequencies() {
 			return frequencies;
 		}
+	}
+
+	@Override
+	public String getInputFileName() {
+		return "input_1";
 	}
 
 }

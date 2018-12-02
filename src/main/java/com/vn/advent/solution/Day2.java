@@ -8,16 +8,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.vn.advent.util.FileUtil;
-
-public class Day2 {
+public class Day2 implements Solution {
 
 	public static void main(String[] args) {
-		FileUtil.runCodeForLinesInFile("input_2", Day2::partOne);
-		FileUtil.runCodeForLinesInFile("input_2", Day2::partTwo);
+		Solution solution = new Day2();
+		solution.run();
 	}
 
-	private static void partOne(Stream<String> lines) {
+	public void partOne(Stream<String> lines) {
 		List<String> boxes = Collections
 				.unmodifiableList(lines.collect(Collectors.toList()));
 
@@ -27,10 +25,10 @@ public class Day2 {
 				.filter(Day2::testHasLetterAppearExactlyThrice).count();
 		long checksum = twoCount * threeCount;
 
-		System.out.println(String.format("PART 1: %d", checksum));
+		System.out.print(checksum);
 	}
 
-	private static void partTwo(Stream<String> lines) {
+	public void partTwo(Stream<String> lines) {
 		List<String> boxes = Collections
 				.unmodifiableList(lines.collect(Collectors.toList()));
 
@@ -46,8 +44,7 @@ public class Day2 {
 					.entrySet().stream().filter(entry -> entry.getValue() == 2)
 					.map(Map.Entry::getKey).findFirst();
 
-			commonLetters.ifPresent(letters -> System.out
-					.println(String.format("PART 2: %s", letters)));
+			commonLetters.ifPresent(letters -> System.out.print(letters));
 			if (commonLetters.isPresent())
 				break;
 		}
@@ -75,6 +72,11 @@ public class Day2 {
 						Function.identity(), Collectors.counting()));
 		return mapOfCharAndCount.values().stream()
 				.anyMatch(value -> value == 3);
+	}
+
+	@Override
+	public String getInputFileName() {
+		return "input_2";
 	}
 
 }

@@ -21,7 +21,6 @@ public class FileUtil {
 		} catch (URISyntaxException | IOException e) {
 			e.printStackTrace();
 		} finally {
-			System.out.println("Closing file");
 			lines.close();
 		}
 	}
