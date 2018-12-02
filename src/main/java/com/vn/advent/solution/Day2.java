@@ -41,10 +41,10 @@ public class Day2 {
 			final int index = i;
 			Optional<String> commonLetters = boxes.stream()
 					.map(id -> removeCharAtIndex(id, index))
-					.collect(Collectors.groupingBy(c -> c,
+					.collect(Collectors.groupingBy(Function.identity(),
 							Collectors.counting()))
-					.entrySet().stream().filter(p -> p.getValue() == 2)
-					.map(e -> e.getKey()).findFirst();
+					.entrySet().stream().filter(entry -> entry.getValue() == 2)
+					.map(Map.Entry::getKey).findFirst();
 
 			commonLetters.ifPresent(letters -> System.out
 					.println(String.format("PART 2: %s", letters)));
