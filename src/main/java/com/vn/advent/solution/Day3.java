@@ -43,7 +43,8 @@ public class Day3 implements Solution {
 		listOfAllClaims.stream()
 				.filter(claim -> checkIfClaimDoesntOverlap(claim,
 						setOfCoordinatesWithSingleClaim))
-				.findFirst().ifPresent(System.out::print);
+				.map(claim -> claim.id).findFirst()
+				.ifPresent(System.out::print);
 	}
 
 	private boolean checkIfClaimDoesntOverlap(Claim claim,
