@@ -7,8 +7,6 @@ import java.util.stream.Stream;
 
 public class Day5 implements Solution {
 
-	private static final String TEST_STR = "asGHhNnshaaAaDyeUwWWwjeE";
-
 	private static final String ALPHABET_LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
 
 	private static final Pattern PATTERN_OPPOSITE_POLARITY_LETTERS = Pattern
@@ -29,12 +27,15 @@ public class Day5 implements Solution {
 	}
 
 	private void processLinePartTwo(String str) {
-		IntStream.range(0, ALPHABET_LOWERCASE.length()).boxed().map(index -> {
-			char lowerChar = ALPHABET_LOWERCASE.charAt(index);
-			String newPolymer = str.replaceAll(String.valueOf(lowerChar), "")
-					.replaceAll(String.valueOf(lowerChar).toUpperCase(), "");
-			return newPolymer;
-		}).map(this::replaceAllRecursive).min(Integer::compare)
+		IntStream.range(0, ALPHABET_LOWERCASE.length()).boxed().parallel()
+				.map(index -> {
+					char lowerChar = ALPHABET_LOWERCASE.charAt(index);
+					String newPolymer = str
+							.replace(String.valueOf(lowerChar), "")
+							.replace(String.valueOf(lowerChar).toUpperCase(),
+									"");
+					return newPolymer;
+				}).map(this::replaceAllRecursive).min(Integer::compare)
 				.ifPresent(System.out::print);
 	}
 
