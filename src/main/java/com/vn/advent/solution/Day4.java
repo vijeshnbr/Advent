@@ -6,9 +6,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,6 +28,49 @@ public class Day4 implements Solution {
 	@Override
 	public void partOne(Stream<String> lines) {
 
+		List<Guard> listOfGuards = makeListOfGuards(lines);
+
+		Optional<Guard> guardWhoSleptMost = listOfGuards.stream()
+				.max(Comparator.comparing(Guard::getSleepTime));
+
+		if (guardWhoSleptMost.isPresent()) {
+			Guard guard = guardWhoSleptMost.get();
+			int id = guard.getId();
+			getMinuteWhichWasSleptMostTimesForAGuard(guard)
+					.map(minuteWhichWasSleptMostTimes -> id
+							* minuteWhichWasSleptMostTimes)
+					.ifPresent(System.out::print);
+		}
+	}
+
+	@Override
+	public void partTwo(Stream<String> lines) {
+		List<Guard> listOfGuards = makeListOfGuards(lines);
+
+		Optional<Guard> guardWhoSleptMostForSameMinute = listOfGuards.stream()
+				.filter(guard -> guard.getMaxOfSleepTime().isPresent())
+				.max(Comparator
+						.comparing(guard -> guard.getMaxOfSleepTime().get()));
+
+		if (guardWhoSleptMostForSameMinute.isPresent()) {
+			Guard guard = guardWhoSleptMostForSameMinute.get();
+			int id = guard.getId();
+			getMinuteWhichWasSleptMostTimesForAGuard(guard)
+					.map(minuteWhichWasSleptMostTimes -> id
+							* minuteWhichWasSleptMostTimes)
+					.ifPresent(System.out::print);
+		}
+
+	}
+
+	private Optional<Integer> getMinuteWhichWasSleptMostTimesForAGuard(
+			Guard guard) {
+		return guard.getMaxOfSleepTime().flatMap(
+				mostSleptForSameMinute -> getFirstIndexOfElementInArray(
+						guard.midnightHourAccumulated, mostSleptForSameMinute));
+	}
+
+	private List<Guard> makeListOfGuards(Stream<String> lines) {
 		Deque<Shift> stackOfShifts = new ArrayDeque<>();
 
 		lines.sorted().forEach(line -> processLine(line, stackOfShifts));
@@ -37,18 +78,10 @@ public class Day4 implements Solution {
 		Map<Integer, List<Shift>> mapOfGuardIdAndShifts = stackOfShifts.stream()
 				.collect(Collectors.groupingBy(Shift::getGuardId));
 
-		Map<Integer, Guard> mapOfIdAndGuard = mapOfGuardIdAndShifts.entrySet()
-				.stream().map(this::mapShiftsOfGuardToGuard)
-				.collect(Collectors.toMap(Guard::getId, Function.identity()));
-
-		Optional<Entry<Integer, Guard>> guardWithMaxSleep = mapOfIdAndGuard
-				.entrySet().stream().max(Map.Entry.comparingByValue(
-						Comparator.comparing(Guard::getSleepTime)));
-		guardWithMaxSleep.map(Map.Entry::getValue)
-				.map(Guard::getMaxOfSleepTime);
-
-		// .map(Map.Entry::getKey).ifPresent(System.out::print);
-
+		List<Guard> listOfGuards = mapOfGuardIdAndShifts.entrySet().stream()
+				.map(this::mapShiftsOfGuardToGuard)
+				.collect(Collectors.toList());
+		return listOfGuards;
 	}
 
 	private void processLine(String str, Deque<Shift> stackOfShifts) {
@@ -105,12 +138,6 @@ public class Day4 implements Solution {
 		for (int i = minute; i < midnightHour.length; i++) {
 			midnightHour[i] = val;
 		}
-	}
-
-	@Override
-	public void partTwo(Stream<String> lines) {
-		// TODO Auto-generated method stub
-
 	}
 
 	private Optional<Integer> extractNumber(String str, Pattern p, int group) {
