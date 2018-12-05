@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 public class Day3 implements Solution {
 
+	private static Pattern PATTERN_NUM = Pattern.compile("\\d+");
+
 	public static void main(String[] args) {
 		Solution solution = new Day3();
 		solution.run();
@@ -55,8 +57,7 @@ public class Day3 implements Solution {
 	}
 
 	private Claim extractParams(String str) {
-		Pattern p = Pattern.compile("\\d+");
-		Matcher m = p.matcher(str);
+		Matcher m = PATTERN_NUM.matcher(str);
 		List<String> groups = new ArrayList<>();
 		while (m.find()) {
 			groups.add(m.group());
