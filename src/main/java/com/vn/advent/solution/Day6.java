@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 public class Day6 implements Solution {
 
+	public static final int RANGE = 10000;
+
 	public static void main(String[] args) {
 		Solution solution = new Day6();
 		solution.run();
@@ -37,7 +39,8 @@ public class Day6 implements Solution {
 
 		final Square[][] grid = new Square[rowSize][colSize];
 
-		// Populate grid with closest loc coordinates or empty coordinates
+		// Populate grid with closest loc coordinates or empty coordinates if
+		// tied
 		for (int row = 0; row < rowSize; row++) {
 			for (int col = 0; col < colSize; col++) {
 				final Coordinates positionInGrid = new Coordinates(col + minX,
@@ -56,6 +59,57 @@ public class Day6 implements Solution {
 		locationAndArea.values().stream().map(List::size).max(Integer::compare)
 				.ifPresent(System.out::print);
 
+	}
+
+	@Override
+	public void partTwo(Stream<String> lines) {
+		Set<Coordinates> setOfCoordinates = lines.map(Coordinates::new)
+				.collect(Collectors.toSet());
+
+		int minX = setOfCoordinates.stream().map(c -> c.x).min(Integer::compare)
+				.get();
+		int minY = setOfCoordinates.stream().map(c -> c.y).min(Integer::compare)
+				.get();
+		int maxX = setOfCoordinates.stream().map(c -> c.x).max(Integer::compare)
+				.get();
+		int maxY = setOfCoordinates.stream().map(c -> c.y).max(Integer::compare)
+				.get();
+
+		int rowSize = maxY - minY + 1;
+		int colSize = maxX - minX + 1;
+
+		final Square[][] grid = new Square[rowSize][colSize];
+
+		// Populate grid with sum of distances to all Locations if in range or
+		// empty coordinates if
+		// not in range
+		for (int row = 0; row < rowSize; row++) {
+			for (int col = 0; col < colSize; col++) {
+				final Coordinates positionInGrid = new Coordinates(col + minX,
+						row + minY);
+				grid[row][col] = getSumOfDistancesToAllLocations(positionInGrid,
+						setOfCoordinates, RANGE);
+			}
+		}
+
+		long regionSize = Arrays.stream(grid)
+				.flatMap(rowArr -> Arrays.stream(rowArr))
+				.filter(square -> square.sumOfDistancesToAllLocations
+						.isPresent())
+				.count();
+		System.out.print(regionSize);
+	}
+
+	private Square getSumOfDistancesToAllLocations(Coordinates positionInGrid,
+			Set<Coordinates> setOfCoordinates, int range) {
+		Square s = new Square(positionInGrid);
+		int sum = setOfCoordinates.stream()
+				.mapToInt(c -> Coordinates.distanceBetween(c, positionInGrid))
+				.sum();
+		if (sum < 10000) {
+			s = new Square(positionInGrid, sum);
+		}
+		return s;
 	}
 
 	private Square getClosestLocation(Coordinates positionInGrid,
@@ -78,11 +132,6 @@ public class Day6 implements Solution {
 		}).get();
 	}
 
-	@Override
-	public void partTwo(Stream<String> lines) {
-
-	}
-
 	/*
 	 * Intention - square will either have the coordinates of closest location
 	 * or have empty coordinates if there is a tie
@@ -90,15 +139,26 @@ public class Day6 implements Solution {
 	static class Square {
 		final Optional<Coordinates> closestLocation;
 		final Coordinates positionInGrid;
+		final Optional<Integer> sumOfDistancesToAllLocations;
 
 		Square(Coordinates positionInGrid, Coordinates closestLocation) {
 			this.positionInGrid = positionInGrid;
 			this.closestLocation = Optional.of(closestLocation);
+			this.sumOfDistancesToAllLocations = Optional.empty();
 		}
 
 		Square(Coordinates positionInGrid) {
 			this.positionInGrid = positionInGrid;
 			this.closestLocation = Optional.empty();
+			this.sumOfDistancesToAllLocations = Optional.empty();
+		}
+
+		Square(Coordinates positionInGrid,
+				Integer sumOfDistancesToAllLocations) {
+			this.positionInGrid = positionInGrid;
+			this.closestLocation = Optional.empty();
+			this.sumOfDistancesToAllLocations = Optional
+					.of(sumOfDistancesToAllLocations);
 		}
 
 		boolean isOnBoundary(int minX, int minY, int maxX, int maxY) {
