@@ -150,7 +150,7 @@ public class Day4 implements Solution {
 		return number;
 	}
 
-	private static class Shift {
+	static class Shift {
 		final int guardId;
 		int[] midnightHour = new int[60];
 
