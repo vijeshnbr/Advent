@@ -31,12 +31,12 @@ public class Day5 implements Solution {
 	}
 
 	public void partTwo(Stream<String> lines) {
-		lines.map(this::findBestReaction).filter(Optional::isPresent)
+		lines.map(this::performBestReaction).filter(Optional::isPresent)
 				.map(Optional::get).map(String::length)
 				.forEach(System.out::print);
 	}
 
-	private Optional<String> findBestReaction(String polymer) {
+	private Optional<String> performBestReaction(String polymer) {
 		return Arrays.stream(ALPHABET_LOWERCASE.split("")).parallel()
 				.map(c -> c + "|" + c.toUpperCase())
 				.map(regex -> polymer.replaceAll(regex, ""))
