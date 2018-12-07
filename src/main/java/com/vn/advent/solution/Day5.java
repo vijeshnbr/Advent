@@ -12,13 +12,13 @@ public class Day5 implements Solution {
 
 	private static final String ALPHABET_LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
 
-	private static final String oppositePolarityPairRegex = Arrays
+	private static final String REGEX_OPPOSITE_POLARITY_PAIR = Arrays
 			.stream(ALPHABET_LOWERCASE.split(""))
 			.map(c -> c + c.toUpperCase() + "|" + c.toUpperCase() + c)
 			.collect(Collectors.joining("|"));
 
 	private static final Pattern PATTERN = Pattern
-			.compile(oppositePolarityPairRegex);
+			.compile(REGEX_OPPOSITE_POLARITY_PAIR);
 
 	public static void main(String[] args) {
 		Solution solution = new Day5();
