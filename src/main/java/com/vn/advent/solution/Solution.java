@@ -2,11 +2,15 @@ package com.vn.advent.solution;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import com.vn.advent.util.FileUtil;
 
 public interface Solution {
+
+	public static final Logger LOGGER = Logger
+			.getLogger(Solution.class.getName());
 
 	public default void run() {
 		System.out
