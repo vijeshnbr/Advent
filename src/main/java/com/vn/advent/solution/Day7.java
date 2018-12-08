@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Day7 implements Solution {
@@ -26,7 +27,7 @@ public class Day7 implements Solution {
 
 	public void partOne(Stream<String> lines) {
 		final Map<String, Step> mapOfIdAndStep = new ConcurrentHashMap<>();
-		final Queue<Step> queue = new PriorityQueue<>(
+		final Queue<Step> stepQueue = new PriorityQueue<>(
 				Comparator.comparing(Step::getId));
 		lines.forEach(str -> {
 			Matcher m = PATTERN_UPPER_CHAR.matcher(str);
@@ -42,21 +43,106 @@ public class Day7 implements Solution {
 		});
 
 		mapOfIdAndStep.values().stream().filter(Step::isAvailable)
-				.forEach(queue::offer);
+				.forEach(stepQueue::offer);
 
-		while (!queue.isEmpty()) {
-			Step toExecute = queue.poll();
+		while (!stepQueue.isEmpty()) {
+			Step toExecute = stepQueue.poll();
 			toExecute.execute();
 			toExecute.parentSteps.stream().forEach(parent -> {
 				if (parent.isAvailable()) {
-					queue.offer(parent);
+					stepQueue.offer(parent);
 				}
 			});
 		}
 	}
 
 	public void partTwo(Stream<String> lines) {
+		final Map<String, Step> mapOfIdAndStep = new ConcurrentHashMap<>();
+		final Queue<Step> stepQueue = new PriorityQueue<>(
+				Comparator.comparing(Step::getId));
+		final Queue<Worker> workerQueue = new PriorityQueue<>(
+				Comparator.comparing(Worker::getWorkTimeRemaining));
+		lines.forEach(str -> {
+			Matcher m = PATTERN_UPPER_CHAR.matcher(str);
+			if (m.find()) {
+				String stepId = m.group(2);
+				String dependentStepId = m.group(1);
+				Step step = mapOfIdAndStep.computeIfAbsent(stepId, Step::new);
+				Step dependentStep = mapOfIdAndStep
+						.computeIfAbsent(dependentStepId, Step::new);
+				step.dependentSteps.add(dependentStep);
+				dependentStep.parentSteps.add(step);
+			}
+		});
 
+		mapOfIdAndStep.values().stream().filter(Step::isAvailable)
+				.forEach(stepQueue::offer);
+
+		int totalTime = 0;
+
+		while (!stepQueue.isEmpty()) {
+
+			System.out.println("Step queue " + stepQueue);
+			while (workerQueue.size() < 5 && !stepQueue.isEmpty()) {
+				Worker worker = new Worker(stepQueue.poll());
+				workerQueue.offer(worker);
+			}
+
+			System.out.println("Worker queue " + workerQueue);
+			while (!workerQueue.isEmpty()) {
+				while (workerQueue.size() < 5 && !stepQueue.isEmpty()) {
+					Worker worker = new Worker(stepQueue.poll());
+					workerQueue.offer(worker);
+				}
+				Worker doneWorker = workerQueue.poll();
+				Integer timeTaken = doneWorker.getWorkTimeRemaining();
+				System.out.println("Executed : ");
+				doneWorker.step.execute();
+				System.out.println("");
+				List<Step> parentSteps = doneWorker.step.parentSteps;
+				parentSteps.stream().forEach(parent -> {
+					if (parent.isAvailable()) {
+						System.out.println("Parent " + parent + " available");
+						stepQueue.offer(parent);
+					}
+				});
+				totalTime += timeTaken;
+				System.out.println("Time spent " + totalTime);
+				List<Worker> remainingWorkers = workerQueue.stream()
+						.collect(Collectors.toList());
+				workerQueue.clear();
+				remainingWorkers.stream().map(remainingWorker -> {
+					remainingWorker.addWorkedTime(timeTaken);
+					return remainingWorker;
+				}).forEach(workerQueue::offer);
+
+			}
+		}
+
+		System.out.println(totalTime);
+
+	}
+
+	static class Worker {
+		final Step step;
+		int workedTime;
+		Worker(Step step) {
+			this.step = step;
+		}
+		public Integer getWorkTimeRemaining() {
+			return this.step.getDuration() - this.workedTime;
+		}
+		public void addWorkedTime(int time) {
+			this.workedTime += time;
+		}
+		public void work() {
+			step.execute();
+		}
+		@Override
+		public String toString() {
+			return "Worker [step=" + step + ", workedTime=" + workedTime
+					+ ", toDo=" + getWorkTimeRemaining() + "]";
+		}
 	}
 
 	static class Step {
@@ -97,6 +183,9 @@ public class Day7 implements Solution {
 		}
 		public String getId() {
 			return id;
+		}
+		public Integer getDuration() {
+			return id.chars().sum() - 4;
 		}
 	}
 
