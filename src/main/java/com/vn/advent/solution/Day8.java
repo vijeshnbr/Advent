@@ -18,15 +18,18 @@ public class Day8 implements Solution {
 	@Override
 	public void partOne(Stream<String> lines) {
 		String header = lines.findFirst().get();
-		arr = Stream.of(header.split(" ")).map(Integer::parseInt).mapToInt(i -> (int) i).toArray();
+		arr = Stream.of(header.split(" ")).map(Integer::parseInt)
+				.mapToInt(i -> (int) i).toArray();
 		Node ROOT = new Node(0);
 		// LOGGER.info("TREE : " + ROOT);
 		System.out.print(sumOfMetadatas(ROOT));
 	}
 
 	int sumOfMetadatas(Node n) {
-		int sumOfOwnMetadata = n.metadatas.stream().mapToInt(Metadata::getValue).sum();
-		int sumOfMetadataOfChildren = n.children.stream().mapToInt(child -> sumOfMetadatas(child)).sum();
+		int sumOfOwnMetadata = n.metadatas.stream().mapToInt(Metadata::getValue)
+				.sum();
+		int sumOfMetadataOfChildren = n.children.stream()
+				.mapToInt(child -> sumOfMetadatas(child)).sum();
 		return sumOfOwnMetadata + sumOfMetadataOfChildren;
 	}
 
@@ -50,7 +53,8 @@ public class Day8 implements Solution {
 			if (children.size() == 0) {
 				return 2 + header.noOfMetadata;
 			}
-			int lengthOfAllChildren = children.stream().mapToInt(Node::length).sum();
+			int lengthOfAllChildren = children.stream().mapToInt(Node::length)
+					.sum();
 			return 2 + lengthOfAllChildren + header.noOfMetadata;
 		}
 
@@ -70,7 +74,8 @@ public class Day8 implements Solution {
 				if (noOfChildrenAlreadyAdded == 0) {
 					childNodeIndex = Optional.of(id + 2);
 				} else if (noOfChildrenAlreadyAdded < noOfChildren) {
-					childNodeIndex = Optional.of(id + 2 + children.stream().mapToInt(Node::length).sum());
+					childNodeIndex = Optional.of(id + 2
+							+ children.stream().mapToInt(Node::length).sum());
 				}
 			}
 			return childNodeIndex;
@@ -88,7 +93,8 @@ public class Day8 implements Solution {
 					metaDataIndex = Optional.of(id + 2);
 				} else {
 					// Node has 1 or more children
-					metaDataIndex = Optional.of(id + 2 + children.stream().mapToInt(Node::length).sum());
+					metaDataIndex = Optional.of(id + 2
+							+ children.stream().mapToInt(Node::length).sum());
 				}
 			}
 			return metaDataIndex;
@@ -105,8 +111,8 @@ public class Day8 implements Solution {
 
 		@Override
 		public String toString() {
-			return "Node [id=" + id + ", header=" + header + ", children=" + children + ", metadatas=" + metadatas
-					+ "]\n";
+			return "Node [id=" + id + ", header=" + header + ",\nchildren="
+					+ children + ",\n metadatas=" + metadatas + "]";
 		}
 	}
 
@@ -121,7 +127,8 @@ public class Day8 implements Solution {
 
 		@Override
 		public String toString() {
-			return "[noOfChildren=" + noOfChildren + ", noOfMetadata=" + noOfMetadata + "]";
+			return "[noOfChildren=" + noOfChildren + ", noOfMetadata="
+					+ noOfMetadata + "]";
 		}
 	}
 
