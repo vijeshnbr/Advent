@@ -10,19 +10,24 @@ public class Day8 implements Solution {
 	private static int[] arr;
 
 	public static void main(String[] args) {
+		// LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day8();
 		solution.run();
 	}
 
+	@Override
 	public void partOne(Stream<String> lines) {
 		String header = lines.findFirst().get();
-		arr = Stream.of(header.split(" ")).map(Integer::parseInt)
-				.mapToInt(i -> (int) i).toArray();
-
+		arr = Stream.of(header.split(" ")).map(Integer::parseInt).mapToInt(i -> (int) i).toArray();
 		Node ROOT = new Node(0);
+		// LOGGER.info("TREE : " + ROOT);
+		System.out.print(sumOfMetadatas(ROOT));
+	}
 
-		System.out.println(ROOT);
-
+	int sumOfMetadatas(Node n) {
+		int sumOfOwnMetadata = n.metadatas.stream().mapToInt(Metadata::getValue).sum();
+		int sumOfMetadataOfChildren = n.children.stream().mapToInt(child -> sumOfMetadatas(child)).sum();
+		return sumOfOwnMetadata + sumOfMetadataOfChildren;
 	}
 
 	public class Node {
@@ -30,30 +35,33 @@ public class Day8 implements Solution {
 		final Header header;
 		final List<Node> children = new ArrayList<>();
 		final List<Metadata> metadatas = new ArrayList<>();
+
 		Node(int index) {
 			this.id = index;
 			int noOfChildren = arr[index];
 			int noOfMetadatas = arr[index + 1];
 			Header h = new Header(noOfChildren, noOfMetadatas);
 			this.header = h;
-			// populateMetadatas();
 			populateChildren();
+			populateMetadatas();
 		}
 
 		int length() {
 			if (children.size() == 0) {
 				return 2 + header.noOfMetadata;
 			}
-			int lengthOfAllChildren = children.stream().mapToInt(Node::length)
-					.sum();
+			int lengthOfAllChildren = children.stream().mapToInt(Node::length).sum();
 			return 2 + lengthOfAllChildren + header.noOfMetadata;
 		}
 
 		void populateChildren() {
-			while (getIndexOfNextChild().isPresent()) {
-				children.add(new Node(getIndexOfNextChild().get()));
+			Optional<Integer> indexOfNextChild = getIndexOfNextChild();
+			while (indexOfNextChild.isPresent()) {
+				children.add(new Node(indexOfNextChild.get()));
+				indexOfNextChild = getIndexOfNextChild();
 			}
 		}
+
 		Optional<Integer> getIndexOfNextChild() {
 			Optional<Integer> childNodeIndex = Optional.empty();
 			int noOfChildren = header.noOfChildren;
@@ -61,9 +69,8 @@ public class Day8 implements Solution {
 			if (noOfChildren > 0) {
 				if (noOfChildrenAlreadyAdded == 0) {
 					childNodeIndex = Optional.of(id + 2);
-				} else {
-					childNodeIndex = Optional.of(
-							2 + children.stream().mapToInt(Node::length).sum());
+				} else if (noOfChildrenAlreadyAdded < noOfChildren) {
+					childNodeIndex = Optional.of(id + 2 + children.stream().mapToInt(Node::length).sum());
 				}
 			}
 			return childNodeIndex;
@@ -79,6 +86,9 @@ public class Day8 implements Solution {
 				} else if (header.noOfChildren == 0) {
 					// Node has NO children
 					metaDataIndex = Optional.of(id + 2);
+				} else {
+					// Node has 1 or more children
+					metaDataIndex = Optional.of(id + 2 + children.stream().mapToInt(Node::length).sum());
 				}
 			}
 			return metaDataIndex;
@@ -95,48 +105,53 @@ public class Day8 implements Solution {
 
 		@Override
 		public String toString() {
-			return "Node [id=" + id + ", header=" + header + ", children="
-					+ children + ", metadatas=" + metadatas + "]";
+			return "Node [id=" + id + ", header=" + header + ", children=" + children + ", metadatas=" + metadatas
+					+ "]\n";
 		}
 	}
 
 	private class Header {
 		final int noOfChildren;
 		final int noOfMetadata;
+
 		public Header(int noOfChildren, int noOfMetadata) {
 			this.noOfChildren = noOfChildren;
 			this.noOfMetadata = noOfMetadata;
 		}
+
 		@Override
 		public String toString() {
-			return "Header [noOfChildren=" + noOfChildren + ", noOfMetadata="
-					+ noOfMetadata + "]";
+			return "[noOfChildren=" + noOfChildren + ", noOfMetadata=" + noOfMetadata + "]";
 		}
 	}
 
 	public class Metadata {
 		final int id;
 		final int value;
+
 		Metadata(int index) {
 			this.id = index;
 			this.value = arr[index];
 		}
+
 		public int getValue() {
 			return value;
 		}
+
 		@Override
 		public String toString() {
-			return "Metadata [id=" + id + ", value=" + value + "]";
+			return String.valueOf(value);
 		}
 	}
 
+	@Override
 	public void partTwo(Stream<String> lines) {
 
 	}
 
 	@Override
 	public String getInputFileName() {
-		return "test_input";
+		return "input_8";
 	}
 
 }
