@@ -15,7 +15,8 @@ public class FileUtil {
 		Stream<String> lines = null;
 		try {
 			inputFilePath = Paths
-					.get(ClassLoader.getSystemResource(inputFileName).toURI());
+				.get(ClassLoader.getSystemResource(inputFileName)
+					.toURI());
 			lines = Files.lines(inputFilePath);
 			consumeFileAsStream.accept(lines);
 		} catch (URISyntaxException | IOException e) {

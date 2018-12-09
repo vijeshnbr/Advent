@@ -17,12 +17,14 @@ public class Day2 implements Solution {
 
 	public void partOne(Stream<String> lines) {
 		List<String> boxes = Collections
-				.unmodifiableList(lines.collect(Collectors.toList()));
+			.unmodifiableList(lines.collect(Collectors.toList()));
 
 		long twoCount = boxes.stream()
-				.filter(Day2::testHasLetterAppearExactlyTwice).count();
+			.filter(Day2::testHasLetterAppearExactlyTwice)
+			.count();
 		long threeCount = boxes.stream()
-				.filter(Day2::testHasLetterAppearExactlyThrice).count();
+			.filter(Day2::testHasLetterAppearExactlyThrice)
+			.count();
 		long checksum = twoCount * threeCount;
 
 		System.out.print(checksum);
@@ -30,19 +32,24 @@ public class Day2 implements Solution {
 
 	public void partTwo(Stream<String> lines) {
 		List<String> boxes = Collections
-				.unmodifiableList(lines.collect(Collectors.toList()));
+			.unmodifiableList(lines.collect(Collectors.toList()));
 
-		int minLengthOfId = boxes.stream().map(String::length)
-				.min(Integer::compare).get();
+		int minLengthOfId = boxes.stream()
+			.map(String::length)
+			.min(Integer::compare)
+			.get();
 
 		for (int i = 0; i < minLengthOfId; i++) {
 			final int index = i;
 			Optional<String> commonLetters = boxes.stream()
-					.map(id -> removeCharAtIndex(id, index))
-					.collect(Collectors.groupingBy(Function.identity(),
-							Collectors.counting()))
-					.entrySet().stream().filter(entry -> entry.getValue() == 2)
-					.map(Map.Entry::getKey).findFirst();
+				.map(id -> removeCharAtIndex(id, index))
+				.collect(Collectors.groupingBy(Function.identity(),
+						Collectors.counting()))
+				.entrySet()
+				.stream()
+				.filter(entry -> entry.getValue() == 2)
+				.map(Map.Entry::getKey)
+				.findFirst();
 
 			commonLetters.ifPresent(letters -> System.out.print(letters));
 			if (commonLetters.isPresent())
@@ -51,27 +58,33 @@ public class Day2 implements Solution {
 	}
 
 	private static String removeCharAtIndex(String str, int index) {
-		List<Character> listOfChars = str.chars().mapToObj(i -> (char) i)
-				.collect(Collectors.toList());
+		List<Character> listOfChars = str.chars()
+			.mapToObj(i -> (char) i)
+			.collect(Collectors.toList());
 		listOfChars.remove(index);
-		return listOfChars.stream().map(String::valueOf)
-				.collect(Collectors.joining());
+		return listOfChars.stream()
+			.map(String::valueOf)
+			.collect(Collectors.joining());
 	}
 
 	private static boolean testHasLetterAppearExactlyTwice(String str) {
 		Map<Character, Long> mapOfCharAndCount = str.chars()
-				.mapToObj(i -> (char) i).collect(Collectors.groupingBy(
-						Function.identity(), Collectors.counting()));
-		return mapOfCharAndCount.values().stream()
-				.anyMatch(value -> value == 2);
+			.mapToObj(i -> (char) i)
+			.collect(Collectors.groupingBy(Function.identity(),
+					Collectors.counting()));
+		return mapOfCharAndCount.values()
+			.stream()
+			.anyMatch(value -> value == 2);
 	}
 
 	private static boolean testHasLetterAppearExactlyThrice(String str) {
 		Map<Character, Long> mapOfCharAndCount = str.chars()
-				.mapToObj(i -> (char) i).collect(Collectors.groupingBy(
-						Function.identity(), Collectors.counting()));
-		return mapOfCharAndCount.values().stream()
-				.anyMatch(value -> value == 3);
+			.mapToObj(i -> (char) i)
+			.collect(Collectors.groupingBy(Function.identity(),
+					Collectors.counting()));
+		return mapOfCharAndCount.values()
+			.stream()
+			.anyMatch(value -> value == 3);
 	}
 
 	@Override

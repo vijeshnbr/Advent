@@ -22,7 +22,8 @@ public class Day1 implements Solution {
 	}
 
 	public void partOne(Stream<String> lines) {
-		System.out.print(lines.mapToLong(Long::parseLong).sum());
+		System.out.print(lines.mapToLong(Long::parseLong)
+			.sum());
 	}
 
 	public void partTwo(Stream<String> lines) {
@@ -30,23 +31,24 @@ public class Day1 implements Solution {
 		final Set<Long> frequencies = new HashSet<>();
 		frequencies.add(INIT_FREQ);
 		AtomicBoolean frequencyFoundTwice = new AtomicBoolean(false);
-		List<Long> changeList = lines.mapToLong(Long::parseLong).boxed()
-				.collect(Collectors.toList());
+		List<Long> changeList = lines.mapToLong(Long::parseLong)
+			.boxed()
+			.collect(Collectors.toList());
 		long lastFrequency = INIT_FREQ;
 		while (!frequencyFoundTwice.get()) {
-			lastFrequency = changeList.stream().reduce(lastFrequency,
-					(frequency, change) -> {
-						if (frequencyFoundTwice.get()) {
-							return frequency;
-						}
-						long newFreq = frequency + change;
-						if (frequencies.contains(newFreq)) {
-							frequencyFoundTwice.set(true);
-						} else {
-							frequencies.add(newFreq);
-						}
-						return newFreq;
-					});
+			lastFrequency = changeList.stream()
+				.reduce(lastFrequency, (frequency, change) -> {
+					if (frequencyFoundTwice.get()) {
+						return frequency;
+					}
+					long newFreq = frequency + change;
+					if (frequencies.contains(newFreq)) {
+						frequencyFoundTwice.set(true);
+					} else {
+						frequencies.add(newFreq);
+					}
+					return newFreq;
+				});
 		}
 
 		if (frequencyFoundTwice.get()) {
@@ -55,8 +57,9 @@ public class Day1 implements Solution {
 	}
 
 	private static void partTwo_Alt(Stream<String> lines) {
-		List<Long> changeList = lines.mapToLong(Long::parseLong).boxed()
-				.collect(Collectors.toList());
+		List<Long> changeList = lines.mapToLong(Long::parseLong)
+			.boxed()
+			.collect(Collectors.toList());
 		final long INIT_FREQ = 0;
 		final Set<Long> frequencies = new HashSet<>();
 		frequencies.add(INIT_FREQ);
@@ -70,10 +73,10 @@ public class Day1 implements Solution {
 			final List<Long> changeList, FrequenciesStack frequenciesStack) {
 
 		Optional<Long> firstDuplicateFrequency = changeList.stream()
-				.map(mapToNewFrequencyAndSetLastFrequency(frequenciesStack))
-				.filter(newFrequency -> !frequenciesStack.getFrequencies()
-						.add(newFrequency))
-				.findFirst();
+			.map(mapToNewFrequencyAndSetLastFrequency(frequenciesStack))
+			.filter(newFrequency -> !frequenciesStack.getFrequencies()
+				.add(newFrequency))
+			.findFirst();
 
 		if (firstDuplicateFrequency.isPresent()) {
 			System.out.print(String.format("Alternate solution to PART 2: %d",

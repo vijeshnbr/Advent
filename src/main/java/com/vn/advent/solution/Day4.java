@@ -16,9 +16,9 @@ public class Day4 implements Solution {
 
 	private static final Pattern PATTERN_ID = Pattern.compile("[#](\\d+)");
 	private static final Pattern PATTERN_SLEEPTIME = Pattern
-			.compile("(\\d+)]\\sf");
+		.compile("(\\d+)]\\sf");
 	private static final Pattern PATTERN_WAKETIME = Pattern
-			.compile("(\\d+)]\\sw");
+		.compile("(\\d+)]\\sw");
 
 	public static void main(String[] args) {
 		Solution solution = new Day4();
@@ -31,15 +31,15 @@ public class Day4 implements Solution {
 		List<Guard> listOfGuards = makeListOfGuards(lines);
 
 		Optional<Guard> guardWhoSleptMost = listOfGuards.stream()
-				.max(Comparator.comparing(Guard::getSleepTime));
+			.max(Comparator.comparing(Guard::getSleepTime));
 
 		if (guardWhoSleptMost.isPresent()) {
 			Guard guard = guardWhoSleptMost.get();
 			int id = guard.getId();
 			getMinuteWhichWasSleptMostTimesForAGuard(guard)
-					.map(minuteWhichWasSleptMostTimes -> id
-							* minuteWhichWasSleptMostTimes)
-					.ifPresent(System.out::print);
+				.map(minuteWhichWasSleptMostTimes -> id
+						* minuteWhichWasSleptMostTimes)
+				.ifPresent(System.out::print);
 		}
 	}
 
@@ -48,45 +48,49 @@ public class Day4 implements Solution {
 		List<Guard> listOfGuards = makeListOfGuards(lines);
 
 		Optional<Guard> guardWhoSleptMostForSameMinute = listOfGuards.stream()
-				.filter(guard -> guard.getMaxOfSleepTime().isPresent())
-				.max(Comparator
-						.comparing(guard -> guard.getMaxOfSleepTime().get()));
+			.filter(guard -> guard.getMaxOfSleepTime()
+				.isPresent())
+			.max(Comparator.comparing(guard -> guard.getMaxOfSleepTime()
+				.get()));
 
 		if (guardWhoSleptMostForSameMinute.isPresent()) {
 			Guard guard = guardWhoSleptMostForSameMinute.get();
 			int id = guard.getId();
 			getMinuteWhichWasSleptMostTimesForAGuard(guard)
-					.map(minuteWhichWasSleptMostTimes -> id
-							* minuteWhichWasSleptMostTimes)
-					.ifPresent(System.out::print);
+				.map(minuteWhichWasSleptMostTimes -> id
+						* minuteWhichWasSleptMostTimes)
+				.ifPresent(System.out::print);
 		}
 
 	}
 
 	private Optional<Integer> getMinuteWhichWasSleptMostTimesForAGuard(
 			Guard guard) {
-		return guard.getMaxOfSleepTime().flatMap(
-				mostSleptForSameMinute -> getFirstIndexOfElementInArray(
-						guard.midnightHourAccumulated, mostSleptForSameMinute));
+		return guard.getMaxOfSleepTime()
+			.flatMap(mostSleptForSameMinute -> getFirstIndexOfElementInArray(
+					guard.midnightHourAccumulated, mostSleptForSameMinute));
 	}
 
 	private List<Guard> makeListOfGuards(Stream<String> lines) {
 		Deque<Shift> stackOfShifts = new ArrayDeque<>();
 
-		lines.sorted().forEach(line -> processLine(line, stackOfShifts));
+		lines.sorted()
+			.forEach(line -> processLine(line, stackOfShifts));
 
 		Map<Integer, List<Shift>> mapOfGuardIdAndShifts = stackOfShifts.stream()
-				.collect(Collectors.groupingBy(Shift::getGuardId));
+			.collect(Collectors.groupingBy(Shift::getGuardId));
 
-		List<Guard> listOfGuards = mapOfGuardIdAndShifts.entrySet().stream()
-				.map(this::mapShiftsOfGuardToGuard)
-				.collect(Collectors.toList());
+		List<Guard> listOfGuards = mapOfGuardIdAndShifts.entrySet()
+			.stream()
+			.map(this::mapShiftsOfGuardToGuard)
+			.collect(Collectors.toList());
 		return listOfGuards;
 	}
 
 	private void processLine(String str, Deque<Shift> stackOfShifts) {
 		Optional<Integer> guardId = extractNumber(str, PATTERN_ID, 1);
-		guardId.map(Shift::new).ifPresent(stackOfShifts::push);
+		guardId.map(Shift::new)
+			.ifPresent(stackOfShifts::push);
 		if (!guardId.isPresent()) {
 			Shift lastShift = stackOfShifts.peek();
 			Optional<Integer> sleepTime = extractNumber(str, PATTERN_SLEEPTIME,
@@ -108,8 +112,8 @@ public class Day4 implements Solution {
 		List<Shift> shifts = shiftsOfGuard.getValue();
 		int[] arr = new int[60];
 		int[] midnightHourAccumulated = shifts.stream()
-				.map(shift -> shift.midnightHour)
-				.reduce(arr, this::addIntArrays);
+			.map(shift -> shift.midnightHour)
+			.reduce(arr, this::addIntArrays);
 		return new Guard(id, midnightHourAccumulated);
 	}
 
@@ -189,12 +193,14 @@ public class Day4 implements Solution {
 		}
 
 		public int getSleepTime() {
-			return Arrays.stream(this.midnightHourAccumulated).sum();
+			return Arrays.stream(this.midnightHourAccumulated)
+				.sum();
 		}
 
 		public Optional<Integer> getMaxOfSleepTime() {
-			return Arrays.stream(this.midnightHourAccumulated).boxed()
-					.max(Integer::compare);
+			return Arrays.stream(this.midnightHourAccumulated)
+				.boxed()
+				.max(Integer::compare);
 		}
 	}
 

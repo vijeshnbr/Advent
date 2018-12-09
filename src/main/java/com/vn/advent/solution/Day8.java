@@ -17,19 +17,36 @@ public class Day8 implements Solution {
 
 	@Override
 	public void partOne(Stream<String> lines) {
-		String header = lines.findFirst().get();
-		arr = Stream.of(header.split(" ")).map(Integer::parseInt)
-				.mapToInt(i -> (int) i).toArray();
-		Node ROOT = new Node(0);
+		Node ROOT = initialize(lines);
 		// LOGGER.info("TREE : " + ROOT);
 		System.out.print(sumOfMetadatas(ROOT));
 	}
 
+	private Node initialize(Stream<String> lines) {
+		String licenseFile = lines.findFirst()
+			.get();
+		arr = Stream.of(licenseFile.split(" "))
+			.map(Integer::parseInt)
+			.mapToInt(i -> (int) i)
+			.toArray();
+		Node ROOT = new Node(0);
+		return ROOT;
+	}
+
+	@Override
+	public void partTwo(Stream<String> lines) {
+		Node ROOT = initialize(lines);
+		// LOGGER.info("TREE : " + ROOT);
+		System.out.print(ROOT.getValue());
+	}
+
 	int sumOfMetadatas(Node n) {
-		int sumOfOwnMetadata = n.metadatas.stream().mapToInt(Metadata::getValue)
-				.sum();
+		int sumOfOwnMetadata = n.metadatas.stream()
+			.mapToInt(Metadata::getValue)
+			.sum();
 		int sumOfMetadataOfChildren = n.children.stream()
-				.mapToInt(child -> sumOfMetadatas(child)).sum();
+			.mapToInt(child -> sumOfMetadatas(child))
+			.sum();
 		return sumOfOwnMetadata + sumOfMetadataOfChildren;
 	}
 
@@ -53,9 +70,29 @@ public class Day8 implements Solution {
 			if (children.size() == 0) {
 				return 2 + header.noOfMetadata;
 			}
-			int lengthOfAllChildren = children.stream().mapToInt(Node::length)
-					.sum();
+			int lengthOfAllChildren = children.stream()
+				.mapToInt(Node::length)
+				.sum();
 			return 2 + lengthOfAllChildren + header.noOfMetadata;
+		}
+
+		int getValue() {
+			int value = 0;
+			if (header.noOfChildren == 0) {
+				value = metadatas.stream()
+					.mapToInt(Metadata::getValue)
+					.sum();
+			} else {
+				value = metadatas.stream()
+					.mapToInt(Metadata::getValue)
+					.filter(metadata -> metadata > 0
+							&& metadata <= header.noOfChildren)
+					.map(i -> i - 1)
+					.mapToObj(children::get)
+					.mapToInt(Node::getValue)
+					.sum();
+			}
+			return value;
 		}
 
 		void populateChildren() {
@@ -74,8 +111,9 @@ public class Day8 implements Solution {
 				if (noOfChildrenAlreadyAdded == 0) {
 					childNodeIndex = Optional.of(id + 2);
 				} else if (noOfChildrenAlreadyAdded < noOfChildren) {
-					childNodeIndex = Optional.of(id + 2
-							+ children.stream().mapToInt(Node::length).sum());
+					childNodeIndex = Optional.of(id + 2 + children.stream()
+						.mapToInt(Node::length)
+						.sum());
 				}
 			}
 			return childNodeIndex;
@@ -93,8 +131,9 @@ public class Day8 implements Solution {
 					metaDataIndex = Optional.of(id + 2);
 				} else {
 					// Node has 1 or more children
-					metaDataIndex = Optional.of(id + 2
-							+ children.stream().mapToInt(Node::length).sum());
+					metaDataIndex = Optional.of(id + 2 + children.stream()
+						.mapToInt(Node::length)
+						.sum());
 				}
 			}
 			return metaDataIndex;
@@ -149,11 +188,6 @@ public class Day8 implements Solution {
 		public String toString() {
 			return String.valueOf(value);
 		}
-	}
-
-	@Override
-	public void partTwo(Stream<String> lines) {
-
 	}
 
 	@Override

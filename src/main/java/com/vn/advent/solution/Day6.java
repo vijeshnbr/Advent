@@ -23,16 +23,24 @@ public class Day6 implements Solution {
 	@Override
 	public void partOne(Stream<String> lines) {
 		Set<Coordinates> setOfCoordinates = lines.map(Coordinates::new)
-				.collect(Collectors.toSet());
+			.collect(Collectors.toSet());
 
-		int minX = setOfCoordinates.stream().map(c -> c.x).min(Integer::compare)
-				.get();
-		int minY = setOfCoordinates.stream().map(c -> c.y).min(Integer::compare)
-				.get();
-		int maxX = setOfCoordinates.stream().map(c -> c.x).max(Integer::compare)
-				.get();
-		int maxY = setOfCoordinates.stream().map(c -> c.y).max(Integer::compare)
-				.get();
+		int minX = setOfCoordinates.stream()
+			.map(c -> c.x)
+			.min(Integer::compare)
+			.get();
+		int minY = setOfCoordinates.stream()
+			.map(c -> c.y)
+			.min(Integer::compare)
+			.get();
+		int maxX = setOfCoordinates.stream()
+			.map(c -> c.x)
+			.max(Integer::compare)
+			.get();
+		int maxY = setOfCoordinates.stream()
+			.map(c -> c.y)
+			.max(Integer::compare)
+			.get();
 
 		int rowSize = maxY - minY + 1;
 		int colSize = maxX - minX + 1;
@@ -51,29 +59,40 @@ public class Day6 implements Solution {
 		}
 
 		Map<Coordinates, List<Square>> locationAndArea = Arrays.stream(grid)
-				.flatMap(rowArr -> Arrays.stream(rowArr))
-				.filter(square -> !square.isOnBoundary(minX, minY, maxX, maxY))
-				.filter(Square::isNotTied)
-				.collect(Collectors.groupingBy(Square::getClosestLocation));
+			.flatMap(rowArr -> Arrays.stream(rowArr))
+			.filter(square -> !square.isOnBoundary(minX, minY, maxX, maxY))
+			.filter(Square::isNotTied)
+			.collect(Collectors.groupingBy(Square::getClosestLocation));
 
-		locationAndArea.values().stream().map(List::size).max(Integer::compare)
-				.ifPresent(System.out::print);
+		locationAndArea.values()
+			.stream()
+			.map(List::size)
+			.max(Integer::compare)
+			.ifPresent(System.out::print);
 
 	}
 
 	@Override
 	public void partTwo(Stream<String> lines) {
 		Set<Coordinates> setOfCoordinates = lines.map(Coordinates::new)
-				.collect(Collectors.toSet());
+			.collect(Collectors.toSet());
 
-		int minX = setOfCoordinates.stream().map(c -> c.x).min(Integer::compare)
-				.get();
-		int minY = setOfCoordinates.stream().map(c -> c.y).min(Integer::compare)
-				.get();
-		int maxX = setOfCoordinates.stream().map(c -> c.x).max(Integer::compare)
-				.get();
-		int maxY = setOfCoordinates.stream().map(c -> c.y).max(Integer::compare)
-				.get();
+		int minX = setOfCoordinates.stream()
+			.map(c -> c.x)
+			.min(Integer::compare)
+			.get();
+		int minY = setOfCoordinates.stream()
+			.map(c -> c.y)
+			.min(Integer::compare)
+			.get();
+		int maxX = setOfCoordinates.stream()
+			.map(c -> c.x)
+			.max(Integer::compare)
+			.get();
+		int maxY = setOfCoordinates.stream()
+			.map(c -> c.y)
+			.max(Integer::compare)
+			.get();
 
 		int rowSize = maxY - minY + 1;
 		int colSize = maxX - minX + 1;
@@ -93,10 +112,9 @@ public class Day6 implements Solution {
 		}
 
 		long regionSize = Arrays.stream(grid)
-				.flatMap(rowArr -> Arrays.stream(rowArr))
-				.filter(square -> square.sumOfDistancesToAllLocations
-						.isPresent())
-				.count();
+			.flatMap(rowArr -> Arrays.stream(rowArr))
+			.filter(square -> square.sumOfDistancesToAllLocations.isPresent())
+			.count();
 		System.out.print(regionSize);
 	}
 
@@ -104,8 +122,8 @@ public class Day6 implements Solution {
 			Set<Coordinates> setOfCoordinates, int range) {
 		Square s = new Square(positionInGrid);
 		int sum = setOfCoordinates.stream()
-				.mapToInt(c -> Coordinates.distanceBetween(c, positionInGrid))
-				.sum();
+			.mapToInt(c -> Coordinates.distanceBetween(c, positionInGrid))
+			.sum();
 		if (sum < 10000) {
 			s = new Square(positionInGrid, sum);
 		}
@@ -115,21 +133,22 @@ public class Day6 implements Solution {
 	private Square getClosestLocation(Coordinates positionInGrid,
 			Set<Coordinates> setOfCoordinates) {
 
-		Optional<Integer> min = setOfCoordinates
-				.stream().map(location -> Coordinates
-						.distanceBetween(positionInGrid, location))
-				.min(Integer::compare);
+		Optional<Integer> min = setOfCoordinates.stream()
+			.map(location -> Coordinates.distanceBetween(positionInGrid,
+					location))
+			.min(Integer::compare);
 		return min.map(dist -> {
 			Square s = new Square(positionInGrid);
 			List<Coordinates> closestLocations = setOfCoordinates.stream()
-					.filter(location -> Coordinates
-							.distanceBetween(positionInGrid, location) == dist)
-					.collect(Collectors.toList());
+				.filter(location -> Coordinates.distanceBetween(positionInGrid,
+						location) == dist)
+				.collect(Collectors.toList());
 			if (closestLocations.size() == 1) {
 				s = new Square(positionInGrid, closestLocations.get(0));
 			}
 			return s;
-		}).get();
+		})
+			.get();
 	}
 
 	/*
@@ -158,7 +177,7 @@ public class Day6 implements Solution {
 			this.positionInGrid = positionInGrid;
 			this.closestLocation = Optional.empty();
 			this.sumOfDistancesToAllLocations = Optional
-					.of(sumOfDistancesToAllLocations);
+				.of(sumOfDistancesToAllLocations);
 		}
 
 		boolean isOnBoundary(int minX, int minY, int maxX, int maxY) {
@@ -199,7 +218,7 @@ public class Day6 implements Solution {
 		private static Integer distanceBetween(Coordinates c1, Coordinates c2) {
 			Coordinates[] arr = new Coordinates[]{c1, c2};
 			Function<Coordinates[], Integer> calcDistance = c -> Math
-					.abs(c[0].x - c[1].x) + Math.abs(c[0].y - c[1].y);
+				.abs(c[0].x - c[1].x) + Math.abs(c[0].y - c[1].y);
 			return CACHE_DISTANCE_BETWEENS.computeIfAbsent(arr, calcDistance);
 		}
 

@@ -23,10 +23,14 @@ public class Day3 implements Solution {
 	@Override
 	public void partOne(Stream<String> lines) {
 		long areaClaimedMultipleTimes = lines.map(this::extractParams)
-				.map(Claim::getAllCoordinates).flatMap(List::stream)
-				.collect(Collectors.groupingBy(Function.identity(),
-						Collectors.counting()))
-				.values().stream().filter(count -> count > 1).count();
+			.map(Claim::getAllCoordinates)
+			.flatMap(List::stream)
+			.collect(Collectors.groupingBy(Function.identity(),
+					Collectors.counting()))
+			.values()
+			.stream()
+			.filter(count -> count > 1)
+			.count();
 		System.out.print(areaClaimedMultipleTimes);
 	}
 
@@ -34,26 +38,33 @@ public class Day3 implements Solution {
 	public void partTwo(Stream<String> lines) {
 
 		List<Claim> listOfAllClaims = lines.map(this::extractParams)
-				.collect(Collectors.toList());
+			.collect(Collectors.toList());
 		Set<Coordinates> setOfCoordinatesWithSingleClaim = listOfAllClaims
-				.stream().map(Claim::getAllCoordinates).flatMap(List::stream)
-				.collect(Collectors.groupingBy(Function.identity(),
-						Collectors.counting()))
-				.entrySet().stream().filter(e -> e.getValue() == 1)
-				.map(Map.Entry::getKey).collect(Collectors.toSet());
+			.stream()
+			.map(Claim::getAllCoordinates)
+			.flatMap(List::stream)
+			.collect(Collectors.groupingBy(Function.identity(),
+					Collectors.counting()))
+			.entrySet()
+			.stream()
+			.filter(e -> e.getValue() == 1)
+			.map(Map.Entry::getKey)
+			.collect(Collectors.toSet());
 
 		listOfAllClaims.stream()
-				.filter(claim -> checkIfClaimDoesntOverlap(claim,
-						setOfCoordinatesWithSingleClaim))
-				.map(claim -> claim.id).findFirst()
-				.ifPresent(System.out::print);
+			.filter(claim -> checkIfClaimDoesntOverlap(claim,
+					setOfCoordinatesWithSingleClaim))
+			.map(claim -> claim.id)
+			.findFirst()
+			.ifPresent(System.out::print);
 	}
 
 	private boolean checkIfClaimDoesntOverlap(Claim claim,
 			Set<Coordinates> setOfCoordinatesWithSingleClaim) {
-		return claim.getAllCoordinates().stream()
-				.allMatch(coordinates -> setOfCoordinatesWithSingleClaim
-						.contains(coordinates));
+		return claim.getAllCoordinates()
+			.stream()
+			.allMatch(coordinates -> setOfCoordinatesWithSingleClaim
+				.contains(coordinates));
 	}
 
 	private Claim extractParams(String str) {
@@ -62,7 +73,9 @@ public class Day3 implements Solution {
 		while (m.find()) {
 			groups.add(m.group());
 		}
-		int[] params = groups.stream().mapToInt(Integer::parseInt).toArray();
+		int[] params = groups.stream()
+			.mapToInt(Integer::parseInt)
+			.toArray();
 		return new Claim(params[0], new Coordinates(params[1], params[2]),
 				params[3], params[4]);
 	}

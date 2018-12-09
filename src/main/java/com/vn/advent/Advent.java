@@ -31,7 +31,9 @@ public class Advent {
 		solutions.add(Day7::new);
 		solutions.add(Day8::new);
 
-		solutions.stream().map(Supplier::get).forEach(Solution::run);
+		solutions.stream()
+			.map(Supplier::get)
+			.forEach(Solution::run);
 	}
 
 }

@@ -10,11 +10,11 @@ import com.vn.advent.util.FileUtil;
 public interface Solution {
 
 	public static final Logger LOGGER = Logger
-			.getLogger(Solution.class.getName());
+		.getLogger(Solution.class.getName());
 
 	public default void run() {
-		System.out
-				.println("Running " + getClass().getSimpleName().toUpperCase());
+		System.out.println("Running " + getClass().getSimpleName()
+			.toUpperCase());
 		runWithInput(getInputFileName());
 		System.out.println();
 	}
@@ -43,7 +43,8 @@ public interface Solution {
 	public static void printDurationOfExecution(Instant start, Instant finish) {
 		System.out.println();
 		System.out.print(String.format("Finished in %d ms",
-				Duration.between(start, finish).toMillis()));
+				Duration.between(start, finish)
+					.toMillis()));
 	}
 
 }

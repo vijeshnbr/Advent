@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class Day7 implements Solution {
 
 	private static final Pattern PATTERN_UPPER_CHAR = Pattern
-			.compile(".+([A-Z]).+([A-Z])");
+		.compile(".+([A-Z]).+([A-Z])");
 
 	final Map<String, Step> mapOfIdAndStep = new ConcurrentHashMap<>();
 	final Queue<Step> stepQueue = new PriorityQueue<>(
@@ -38,11 +38,12 @@ public class Day7 implements Solution {
 		while (!stepQueue.isEmpty()) {
 			Step step = stepQueue.poll();
 			System.out.print(step.execute());
-			step.parentSteps.stream().forEach(parent -> {
-				if (parent.isAvailable()) {
-					stepQueue.offer(parent);
-				}
-			});
+			step.parentSteps.stream()
+				.forEach(parent -> {
+					if (parent.isAvailable()) {
+						stepQueue.offer(parent);
+					}
+				});
 		}
 	}
 
@@ -66,21 +67,24 @@ public class Day7 implements Solution {
 				String stepExecuted = doneWorker.step.execute();
 				LOGGER.info("Executed : " + stepExecuted);
 				List<Step> parentSteps = doneWorker.step.parentSteps;
-				parentSteps.stream().forEach(parent -> {
-					if (parent.isAvailable()) {
-						LOGGER.info("Parent " + parent + " available");
-						stepQueue.offer(parent);
-					}
-				});
+				parentSteps.stream()
+					.forEach(parent -> {
+						if (parent.isAvailable()) {
+							LOGGER.info("Parent " + parent + " available");
+							stepQueue.offer(parent);
+						}
+					});
 				totalTime += timeTaken;
 				LOGGER.info("Time spent " + totalTime);
 				List<Worker> remainingWorkers = workerQueue.stream()
-						.collect(Collectors.toList());
+					.collect(Collectors.toList());
 				workerQueue.clear();
-				remainingWorkers.stream().map(remainingWorker -> {
-					remainingWorker.addWorkedTime(timeTaken);
-					return remainingWorker;
-				}).forEach(workerQueue::offer);
+				remainingWorkers.stream()
+					.map(remainingWorker -> {
+						remainingWorker.addWorkedTime(timeTaken);
+						return remainingWorker;
+					})
+					.forEach(workerQueue::offer);
 
 			}
 		}
@@ -121,7 +125,7 @@ public class Day7 implements Solution {
 		}
 		public String execute() {
 			this.parentSteps.stream()
-					.forEach(step -> step.dependentSteps.remove(this));
+				.forEach(step -> step.dependentSteps.remove(this));
 			return id;
 		}
 		@Override
@@ -150,7 +154,8 @@ public class Day7 implements Solution {
 			return id;
 		}
 		public Integer getDuration() {
-			return id.chars().sum() - 4;
+			return id.chars()
+				.sum() - 4;
 		}
 	}
 
@@ -163,14 +168,16 @@ public class Day7 implements Solution {
 				String dependentStepId = m.group(1);
 				Step step = mapOfIdAndStep.computeIfAbsent(stepId, Step::new);
 				Step dependentStep = mapOfIdAndStep
-						.computeIfAbsent(dependentStepId, Step::new);
+					.computeIfAbsent(dependentStepId, Step::new);
 				step.dependentSteps.add(dependentStep);
 				dependentStep.parentSteps.add(step);
 			}
 		});
 
-		mapOfIdAndStep.values().stream().filter(Step::isAvailable)
-				.forEach(stepQueue::offer);
+		mapOfIdAndStep.values()
+			.stream()
+			.filter(Step::isAvailable)
+			.forEach(stepQueue::offer);
 	}
 
 	@Override

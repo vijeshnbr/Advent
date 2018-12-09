@@ -13,12 +13,12 @@ public class Day5 implements Solution {
 	private static final String ALPHABET_LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
 
 	private static final String REGEX_OPPOSITE_POLARITY_PAIR = Arrays
-			.stream(ALPHABET_LOWERCASE.split(""))
-			.map(c -> c + c.toUpperCase() + "|" + c.toUpperCase() + c)
-			.collect(Collectors.joining("|"));
+		.stream(ALPHABET_LOWERCASE.split(""))
+		.map(c -> c + c.toUpperCase() + "|" + c.toUpperCase() + c)
+		.collect(Collectors.joining("|"));
 
 	private static final Pattern PATTERN = Pattern
-			.compile(REGEX_OPPOSITE_POLARITY_PAIR);
+		.compile(REGEX_OPPOSITE_POLARITY_PAIR);
 
 	public static void main(String[] args) {
 		Solution solution = new Day5();
@@ -26,22 +26,26 @@ public class Day5 implements Solution {
 	}
 
 	public void partOne(Stream<String> lines) {
-		lines.map(this::reactPolymer).map(String::length)
-				.forEach(System.out::print);
+		lines.map(this::reactPolymer)
+			.map(String::length)
+			.forEach(System.out::print);
 	}
 
 	public void partTwo(Stream<String> lines) {
-		lines.map(this::performBestReaction).filter(Optional::isPresent)
-				.map(Optional::get).map(String::length)
-				.forEach(System.out::print);
+		lines.map(this::performBestReaction)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.map(String::length)
+			.forEach(System.out::print);
 	}
 
 	private Optional<String> performBestReaction(String polymer) {
-		return Arrays.stream(ALPHABET_LOWERCASE.split("")).parallel()
-				.map(c -> c + "|" + c.toUpperCase())
-				.map(regex -> polymer.replaceAll(regex, ""))
-				.map(this::reactPolymer)
-				.min(Comparator.comparing(String::length));
+		return Arrays.stream(ALPHABET_LOWERCASE.split(""))
+			.parallel()
+			.map(c -> c + "|" + c.toUpperCase())
+			.map(regex -> polymer.replaceAll(regex, ""))
+			.map(this::reactPolymer)
+			.min(Comparator.comparing(String::length));
 	}
 
 	private String reactPolymer(String polymer) {
