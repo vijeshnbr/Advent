@@ -23,50 +23,65 @@ public class Day10 implements Solution {
 
 	@Override
 	public void partOne(Stream<String> lines) {
-		final Set<Point> allPoints = lines.map(this::extractPoint)
+		Set<Point> allPoints = lines.map(this::extractPoint)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toSet());
-		int minX = allPoints.stream()
-			.map(point -> point.p.x)
-			.min(Integer::compare)
-			.get();
-		int minY = allPoints.stream()
-			.map(point -> point.p.y)
-			.min(Integer::compare)
-			.get();
-		int maxX = allPoints.stream()
-			.map(point -> point.p.x)
-			.max(Integer::compare)
-			.get();
-		int maxY = allPoints.stream()
-			.map(point -> point.p.y)
-			.max(Integer::compare)
-			.get();
+		while (true) {
+			int minX = allPoints.stream()
+				.map(point -> point.p.x)
+				.min(Integer::compare)
+				.get();
+			int minY = allPoints.stream()
+				.map(point -> point.p.y)
+				.min(Integer::compare)
+				.get();
+			int maxX = allPoints.stream()
+				.map(point -> point.p.x)
+				.max(Integer::compare)
+				.get();
+			int maxY = allPoints.stream()
+				.map(point -> point.p.y)
+				.max(Integer::compare)
+				.get();
 
-		int rowSize = maxY - minY + 1;
-		int colSize = maxX - minX + 1;
+			int rowSize = maxY - minY + 1;
+			int colSize = maxX - minX + 1;
 
-		final Character[][] grid = new Character[rowSize][colSize];
-		Set<Position> allPositions = allPoints.stream()
-			.map(point -> point.p)
-			.collect(Collectors.toSet());
+			if (rowSize < 20 && colSize < 100) {
+				final Character[][] grid = new Character[rowSize][colSize];
+				Set<Position> allPositions = allPoints.stream()
+					.map(point -> point.p)
+					.collect(Collectors.toSet());
 
-		// Populate grid with all available points
-		for (int row = 0; row < rowSize; row++) {
-			for (int col = 0; col < colSize; col++) {
-				int currX = col + minX;
-				int currY = row + minY;
-				Position p = new Position(currX, currY);
-				if (allPositions.contains(p)) {
-					grid[row][col] = '#';
-				} else {
-					grid[row][col] = '.';
+				// Populate grid with all available points
+				for (int row = 0; row < rowSize; row++) {
+					for (int col = 0; col < colSize; col++) {
+						int currX = col + minX;
+						int currY = row + minY;
+						Position p = new Position(currX, currY);
+						if (allPositions.contains(p)) {
+							grid[row][col] = '#';
+						} else {
+							grid[row][col] = '.';
+						}
+					}
 				}
+				System.out.println();
+				print2DArray(grid);
+				break;
 			}
+
+			// transform position of each point according to its velocity
+			allPoints = allPoints.stream()
+				.map(point -> {
+					point.p = new Position(point.p.x + point.v.x,
+							point.p.y + point.v.y);
+					return point;
+				})
+				.collect(Collectors.toSet());
 		}
-		System.out.println();
-		print2DArray(grid);
+
 	}
 
 	private void print2DArray(Object[][] arr) {
@@ -96,11 +111,51 @@ public class Day10 implements Solution {
 
 	@Override
 	public void partTwo(Stream<String> lines) {
+		Set<Point> allPoints = lines.map(this::extractPoint)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toSet());
+		long seconds = 0;
+		while (true) {
+			int minX = allPoints.stream()
+				.map(point -> point.p.x)
+				.min(Integer::compare)
+				.get();
+			int minY = allPoints.stream()
+				.map(point -> point.p.y)
+				.min(Integer::compare)
+				.get();
+			int maxX = allPoints.stream()
+				.map(point -> point.p.x)
+				.max(Integer::compare)
+				.get();
+			int maxY = allPoints.stream()
+				.map(point -> point.p.y)
+				.max(Integer::compare)
+				.get();
 
+			int rowSize = maxY - minY + 1;
+			int colSize = maxX - minX + 1;
+
+			if (rowSize < 20 && colSize < 100) {
+				System.out.println(String.valueOf(seconds));
+				break;
+			}
+
+			// transform position of each point according to its velocity
+			allPoints = allPoints.stream()
+				.map(point -> {
+					point.p = new Position(point.p.x + point.v.x,
+							point.p.y + point.v.y);
+					return point;
+				})
+				.collect(Collectors.toSet());
+			seconds++;
+		}
 	}
 
 	static class Point {
-		final Position p;
+		Position p;
 		final Velocity v;
 		Point(Position p, Velocity v) {
 			this.p = p;

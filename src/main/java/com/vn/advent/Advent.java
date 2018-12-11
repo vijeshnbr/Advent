@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import com.vn.advent.solution.Day1;
+import com.vn.advent.solution.Day10;
 import com.vn.advent.solution.Day2;
 import com.vn.advent.solution.Day3;
 import com.vn.advent.solution.Day4;
@@ -32,6 +33,7 @@ public class Advent {
 		solutions.add(Day7::new);
 		solutions.add(Day8::new);
 		solutions.add(Day9::new);
+		solutions.add(Day10::new);
 
 		solutions.stream()
 			.map(Supplier::get)
