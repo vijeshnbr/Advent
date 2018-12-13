@@ -2,6 +2,7 @@ package com.vn.advent.solution;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.IntSummaryStatistics;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -16,9 +17,8 @@ public class Day12 implements Solution {
 	private static final Pattern FIND_PATTERNS_PATTERN = Pattern
 		.compile("([#|\\.]{5})\\s\\=\\>\\s#");
 
-	// private static final String INITIAL_STATE =
-	// "#.#####.#.#.####.####.#.#...#.......##..##.#.#.#.###..#.....#.####..#.#######.#....####.#....##....#";
-	private static final String INITIAL_STATE = "#..#.#..##......###...###";
+	private static final String INITIAL_STATE = "#.#####.#.#.####.####.#.#...#.......##..##.#.#.#.###..#.....#.####..#.#######.#....####.#....##....#";
+	// private static final String INITIAL_STATE = "#..#.#..##......###...###";
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
@@ -48,11 +48,16 @@ public class Day12 implements Solution {
 		System.out.println();
 		System.out.println(prepCurrentGenPlantStateForAnalysis);
 		stackOfGenerations.push(prepCurrentGenPlantStateForAnalysis);
+		long totalOfIndices = 0;
+		int head = 0;
+
 		List<Integer> indicesYieldingPlantsInNextGeneration = new ArrayList<>();
 
 		for (int i = 1; i <= 20; i++) {
 			String currentGen = stackOfGenerations.peek();
 			System.out.println(i - 1 + ": " + currentGen);
+
+			int tmpHead = head;
 			plantYieldingPatterns.forEach(pattern -> {
 				// System.out.println(pattern);
 				Matcher m = pattern.matcher(currentGen);
@@ -61,29 +66,31 @@ public class Day12 implements Solution {
 					int indexOfPlant = start + 2;
 					// System.out.println("Found match " + m.group() + " at "
 					// + (indexOfPlant - 4));
-					indicesYieldingPlantsInNextGeneration.add(indexOfPlant);
+					indicesYieldingPlantsInNextGeneration
+						.add(indexOfPlant - (4 - tmpHead));
 					m.region(start + 1, currentGen.length() - 1);
 				}
 			});
 			StringBuilder nextGen = new StringBuilder(
 					currentGen.replaceAll("#", "."));
-			indicesYieldingPlantsInNextGeneration
-				.forEach(index -> nextGen.setCharAt(index, '#'));
+			indicesYieldingPlantsInNextGeneration.forEach(
+					index -> nextGen.setCharAt(index + (4 - tmpHead), '#'));
 			String prepNextGenPlantStateForAnalysis = prepPlantStateForAnalysis(
 					nextGen.toString());
 			// System.out.println(prepNextGenPlantStateForAnalysis);
 			stackOfGenerations.push(prepNextGenPlantStateForAnalysis);
+			IntSummaryStatistics summaryStatistics = indicesYieldingPlantsInNextGeneration
+				.stream()
+				.mapToInt(Integer::valueOf)
+				.summaryStatistics();
+			head = summaryStatistics.getMin();
+			totalOfIndices = summaryStatistics.getSum();
+			indicesYieldingPlantsInNextGeneration.sort(Integer::compare);
+			System.out.println(indicesYieldingPlantsInNextGeneration);
 			indicesYieldingPlantsInNextGeneration.clear();
 		}
 
-		System.out.println(stackOfGenerations.stream()
-			.peek(System.out::println)
-			.mapToInt(str -> {
-				return str.length() - str.replace("#", "")
-					.length();
-			})
-			.peek(System.out::println)
-			.sum());
+		System.out.println(totalOfIndices);
 	}
 
 	private String prepPlantStateForAnalysis(String s) {
