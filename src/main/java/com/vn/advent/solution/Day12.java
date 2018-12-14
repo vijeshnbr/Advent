@@ -19,7 +19,7 @@ public class Day12 implements Solution {
 
 	private static final String INITIAL_STATE = "#.#####.#.#.####.####.#.#...#.......##..##.#.#.#.###..#.....#.####..#.#######.#....####.#....##....#";
 	// private static final String INITIAL_STATE = "#..#.#..##......###...###";
-
+	private static final long TOTAL_GEN = 50000000000L;
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day12();
@@ -45,17 +45,17 @@ public class Day12 implements Solution {
 		Deque<String> stackOfGenerations = new LinkedList<>();
 		String prepCurrentGenPlantStateForAnalysis = prepPlantStateForAnalysis(
 				INITIAL_STATE);
-		System.out.println();
-		System.out.println(prepCurrentGenPlantStateForAnalysis);
+		// System.out.println();
+		// System.out.println(prepCurrentGenPlantStateForAnalysis);
 		stackOfGenerations.push(prepCurrentGenPlantStateForAnalysis);
 		long totalOfIndices = 0;
 		int head = 0;
 
 		List<Integer> indicesYieldingPlantsInNextGeneration = new ArrayList<>();
 
-		for (int i = 1; i <= 20; i++) {
+		for (long i = 1; i <= TOTAL_GEN; i++) {
 			String currentGen = stackOfGenerations.peek();
-			System.out.println(i - 1 + ": " + currentGen);
+			// System.out.println(i - 1 + ": " + currentGen);
 
 			int tmpHead = head;
 			plantYieldingPatterns.forEach(pattern -> {
@@ -84,9 +84,10 @@ public class Day12 implements Solution {
 				.mapToInt(Integer::valueOf)
 				.summaryStatistics();
 			head = summaryStatistics.getMin();
-			totalOfIndices = summaryStatistics.getSum();
+			if (i == TOTAL_GEN)
+				totalOfIndices = summaryStatistics.getSum();
 			indicesYieldingPlantsInNextGeneration.sort(Integer::compare);
-			System.out.println(indicesYieldingPlantsInNextGeneration);
+			// System.out.println(indicesYieldingPlantsInNextGeneration);
 			indicesYieldingPlantsInNextGeneration.clear();
 		}
 
