@@ -1,340 +1,330 @@
 package com.vn.advent.solution;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Day19 implements Solution {
+public class Day implements Solution
+{
+	private static final Eval addr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] + res.registers[b];
+			return res;
+		};
 
-	private static final Eval addr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] + res.registers[b];
-		return res;
-	};
+	private static final Eval addi = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] + b;
+			return res;
+		};
 
-	private static final Eval addi = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] + b;
-		return res;
-	};
+	private static final Eval mulr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] * res.registers[b];
+			return res;
+		};
 
-	private static final Eval mulr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] * res.registers[b];
-		return res;
-	};
+	private static final Eval muli = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] * b;
+			return res;
+		};
 
-	private static final Eval muli = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] * b;
-		return res;
-	};
+	private static final Eval banr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] & res.registers[b];
+			return res;
+		};
 
-	private static final Eval banr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] & res.registers[b];
-		return res;
-	};
+	private static final Eval bani = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] & b;
+			return res;
+		};
 
-	private static final Eval bani = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] & b;
-		return res;
-	};
+	private static final Eval borr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] | res.registers[b];
+			return res;
+		};
 
-	private static final Eval borr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] | res.registers[b];
-		return res;
-	};
+	private static final Eval bori = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a] | b;
+			return res;
+		};
 
-	private static final Eval bori = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a] | b;
-		return res;
-	};
+	private static final Eval setr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = res.registers[a];
+			return res;
+		};
 
-	private static final Eval setr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = res.registers[a];
-		return res;
-	};
+	private static final Eval seti = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			res.registers[c] = a;
+			return res;
+		};
 
-	private static final Eval seti = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		res.registers[c] = a;
-		return res;
-	};
+	private static final Eval gtir = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			Boolean val = a > res.registers[b];
+			res.registers[c] = val ? 1 : 0;
+			return res;
+		};
 
-	private static final Eval gtir = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		Boolean val = a > res.registers[b];
-		res.registers[c] = val ? 1 : 0;
-		return res;
-	};
+	private static final Eval gtri = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			Boolean val = res.registers[a] > b;
+			res.registers[c] = val ? 1 : 0;
+			return res;
+		};
 
-	private static final Eval gtri = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		Boolean val = res.registers[a] > b;
-		res.registers[c] = val ? 1 : 0;
-		return res;
-	};
+	private static final Eval gtrr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			Boolean val = res.registers[a] > res.registers[b];
+			res.registers[c] = val ? 1 : 0;
+			return res;
+		};
 
-	private static final Eval gtrr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		Boolean val = res.registers[a] > res.registers[b];
-		res.registers[c] = val ? 1 : 0;
-		return res;
-	};
+	private static final Eval eqir = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			Boolean val = a == res.registers[b];
+			res.registers[c] = val ? 1 : 0;
+			return res;
+		};
 
-	private static final Eval eqir = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		Boolean val = a == res.registers[b];
-		res.registers[c] = val ? 1 : 0;
-		return res;
-	};
+	private static final Eval eqri = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			Boolean val = res.registers[a] == b;
+			res.registers[c] = val ? 1 : 0;
+			return res;
+		};
 
-	private static final Eval eqri = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		Boolean val = res.registers[a] == b;
-		res.registers[c] = val ? 1 : 0;
-		return res;
-	};
+	private static final Eval eqrr = (registers, a, b, c) ->
+		{
+			Registers res = registers.getCopyOf();
+			Boolean val = res.registers[a] == res.registers[b];
+			res.registers[c] = val ? 1 : 0;
+			return res;
+		};
 
-	private static final Eval eqrr = (registers, a, b, c) -> {
-		Registers res = registers.getCopyOf();
-		Boolean val = res.registers[a] == res.registers[b];
-		res.registers[c] = val ? 1 : 0;
-		return res;
-	};
+	private static final Map<String, Eval> OPS = new HashMap<>();
+	static
+	{
+		OPS.put( "addr", addr );
+		OPS.put( "addi", addi );
+		OPS.put( "mulr", mulr );
+		OPS.put( "muli", muli );
+		OPS.put( "banr", banr );
+		OPS.put( "bani", bani );
+		OPS.put( "setr", setr );
+		OPS.put( "seti", seti );
+		OPS.put( "eqrr", eqrr );
+		OPS.put( "eqri", eqri );
+		OPS.put( "eqir", eqir );
+		OPS.put( "borr", borr );
+		OPS.put( "bori", bori );
+		OPS.put( "gtrr", gtrr );
+		OPS.put( "gtri", gtri );
+		OPS.put( "gtir", gtir );
+	}
 
-	private static final Eval[] OPS = new Eval[] { addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir,
-			gtri, gtrr, eqir, eqri, eqrr };
-
-	private static final Pattern REGISTER = Pattern.compile("\\[(.*)\\]");
-
-	public static void main(String[] args) {
-		LOGGER.setLevel(Level.OFF);
-		Solution solution = new Day19();
+	public static void main(String[] args)
+	{
+		//LOGGER.setLevel( Level.OFF );
+		Solution solution = new Day();
 		solution.run();
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
-		String[] parts = lines.collect(Collectors.joining("SEPARATOR"))
-			.split("(SEPARATOR){4}");
-		String inputPartOne = parts[0];
-		System.out.println();
-		String[] samplesInput = inputPartOne.split("(SEPARATOR){2}");
-		List<Sample> samples = Stream.of(samplesInput)
-			.map(this::mapToSample)
-			.collect(Collectors.toList());
+	public void partOne(Stream<String> lines)
+	{
+		List<String> allInput = lines.collect( Collectors.toList() );
+		String ipString = allInput.remove( 0 );
+		int ipIndex = Integer.parseInt( ipString.split( " " )[1] );
 
-		System.out.print(samples.stream()
-			.filter(this::behavesLike3OrMoreOpCodes)
-			.count());
+		Map<Integer, Instruction> mapOfInstructions = new HashMap<>();
+		int ip = 0;
+		for( String str : allInput )
+		{
+			Instruction i = new Instruction( str );
+			mapOfInstructions.put( ip, i );
+			ip++;
+		}
 
+		Registers initial = Registers.of( 6 );
+
+		while( mapOfInstructions.containsKey( initial.registers[ipIndex] ) )
+		{
+			int nextInstruction = initial.registers[ipIndex];
+			Instruction toRun = mapOfInstructions.get( nextInstruction );
+			Registers afterRun = OPS.get( toRun.op ).eval( initial, toRun.a, toRun.b, toRun.c );
+			afterRun.registers[ipIndex] += 1;
+
+			//System.out.println( afterRun );
+
+			initial = afterRun;
+		}
+
+		System.out.print( initial.registers[0] );
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
-		String[] parts = lines.collect(Collectors.joining("SEPARATOR"))
-			.split("(SEPARATOR){4}");
-		String inputPartOne = parts[0];
-		System.out.println();
-		String[] samplesInput = inputPartOne.split("(SEPARATOR){2}");
-		List<Sample> samples = Stream.of(samplesInput)
-			.map(this::mapToSample)
-			.collect(Collectors.toList());
+	public void partTwo(Stream<String> lines)
+	{
+		List<String> allInput = lines.collect( Collectors.toList() );
+		String ipString = allInput.remove( 0 );
+		int ipIndex = Integer.parseInt( ipString.split( " " )[1] );
 
-		// Group samples by op code
-		Map<Integer, List<Sample>> allSamplesGrouped = samples.stream()
-			.collect(Collectors.groupingBy(Sample::getOpCode));
-
-		Map<Integer, Eval> knownMapOfOpCodeAndOperation = new HashMap<>();
-
-		while (true) {
-			// stream allSamplesGrouped and try to find opcodes. Populate above
-			// map
-			// knownMapOfOpCodeAndOperation with codes and operation.
-			Map<Integer, Eval> opCodesFound = allSamplesGrouped.values()
-				.stream()
-				.flatMap(List::stream)
-				.map(s -> findOpCodeAndOpThatBehavesLikeExactlyOneOperation(s, knownMapOfOpCodeAndOperation.values()))
-				.filter(m -> !m.isEmpty())
-				.distinct()
-				.flatMap(m -> m.entrySet()
-					.stream())
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-			// remove entry for the opcodes that have already been found for
-			// performance
-			opCodesFound.keySet()
-				.stream()
-				.forEach(allSamplesGrouped::remove);
-
-			knownMapOfOpCodeAndOperation.putAll(opCodesFound);
-			if (knownMapOfOpCodeAndOperation.size() == 16)
-				break;
+		Map<Integer, Instruction> mapOfInstructions = new HashMap<>();
+		int ip = 0;
+		for( String str : allInput )
+		{
+			Instruction i = new Instruction( str );
+			mapOfInstructions.put( ip, i );
+			ip++;
 		}
 
-		String inputPartTwo = parts[1];
-		Registers initial = new Registers("0, 0, 0, 0");
+		Registers initial = Registers.of( 6 );
+		initial.registers[0] = 1;
 
-		String[] programInput = inputPartTwo.split("SEPARATOR");
+		char[] labels = new char[6];
+		labels[0] = 'A';
+		labels[1] = 'B';
+		labels[2] = 'C';
+		labels[3] = '#';
+		labels[4] = 'D';
+		labels[5] = 'E';
 
-		List<Instruction> intructions = Stream.of(programInput)
-			.map(Instruction::new)
-			.collect(Collectors.toList());
+		int ic = 1;
 
-		for (Instruction i : intructions) {
-			initial = knownMapOfOpCodeAndOperation.get(i.opCode)
-				.eval(initial, i.a, i.b, i.c);
-		}
-
-		System.out.print(initial.registers[0]);
-
-	}
-
-	Map<Integer, Eval> findOpCodeAndOpThatBehavesLikeExactlyOneOperation(Sample s,
-			Collection<Eval> setOfAlreadyFoundOpName) {
-		int matchCounter = 0;
-		int opsCounter = 0;
-		Integer lastMatchedOp = null;
-		Map<Integer, Eval> knownOpCodeAndName = new HashMap<>();
-
-		while (opsCounter < OPS.length) {
-			Eval op = OPS[opsCounter];
-			if (!setOfAlreadyFoundOpName.contains(op)) {
-				Registers res = op.eval(s.before, s.i.a, s.i.b, s.i.c);
-				if (res.equals(s.after)) {
-					matchCounter++;
-					lastMatchedOp = opsCounter;
+		while( mapOfInstructions.containsKey( initial.registers[ipIndex] ) )
+		{
+			int nextInstruction = initial.registers[ipIndex];
+			Instruction toRun = mapOfInstructions.get( nextInstruction );
+			Registers afterRun = OPS.get( toRun.op ).eval( initial, toRun.a, toRun.b, toRun.c );
+			afterRun.registers[ipIndex] += 1;
+			if( ic >= 1 && ic < 1000 )
+			{
+				System.out.println( toRun );
+				System.out.print( afterRun );
+				if( toRun.c == 3 )
+				{
+					System.out.print( " * " );
+					if( toRun.op.equals( "seti" ) )
+					{
+						System.out.print( labels[toRun.c] + " = " + toRun.a );
+					}
 				}
+				System.out.println();
 			}
-			opsCounter++;
+			initial = afterRun;
+			ic++;
 		}
 
-		if (matchCounter == 1) {
-			knownOpCodeAndName.put(s.i.opCode, OPS[lastMatchedOp]);
-		}
-		return knownOpCodeAndName;
+		System.out.print( initial.registers[0] );
 	}
 
-	boolean behavesLike3OrMoreOpCodes(Sample s) {
-		int matchCounter = 0;
-		int opsCounter = 0;
-
-		while (matchCounter < 3 && opsCounter < OPS.length) {
-			Registers res = OPS[opsCounter].eval(s.before, s.i.a, s.i.b, s.i.c);
-			if (res.equals(s.after)) {
-				matchCounter++;
-			}
-			opsCounter++;
-		}
-
-		return matchCounter == 3;
-	}
-
-	private Sample mapToSample(String str) {
-		String[] s = str.split("SEPARATOR");
-		Matcher m = REGISTER.matcher(s[0]);
-		m.find();
-		Registers before = new Registers(m.group(1));
-		Instruction i = new Instruction(s[1]);
-		m = REGISTER.matcher(s[2]);
-		m.find();
-		Registers after = new Registers(m.group(1));
-		return new Sample(before, i, after);
-	}
-
-	static class Sample {
-		Registers before, after;
-		Instruction i;
-
-		Sample(Registers before, Instruction i, Registers after) {
-			this.before = before;
-			this.i = i;
-			this.after = after;
-		}
-
-		int getOpCode() {
-			return i.opCode;
-		}
-
-		@Override
-		public String toString() {
-			return "before=" + before + ", inst=" + i + ", after=" + after;
-		}
-
-	}
-
-	static class Registers {
+	static class Registers
+	{
 		final int[] registers;
 
-		Registers(String s) {
-			this.registers = Stream.of(s.split(", "))
-				.mapToInt(Integer::parseInt)
-				.toArray();
+		Registers(String s)
+		{
+			this.registers = Stream.of( s.split( ", " ) )
+							.mapToInt( Integer::parseInt )
+							.toArray();
 		}
 
-		Registers(int[] registers) {
+		static Registers of(int size)
+		{
+			return new Registers( new int[size] );
+		}
+
+		Registers(int[] registers)
+		{
 			this.registers = registers;
 		}
 
-		Registers getCopyOf() {
-			return new Registers(registers.clone());
+		Registers getCopyOf()
+		{
+			return new Registers( registers.clone() );
 		}
 
 		@Override
-		public String toString() {
-			return "[" + Arrays.toString(registers) + "]";
+		public String toString()
+		{
+			return "[" + Arrays.toString( registers ) + "]";
 		}
 
 		@Override
-		public int hashCode() {
-			return Objects.hash(registers);
+		public int hashCode()
+		{
+			return Objects.hash( registers );
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(Object obj)
+		{
+			if( this == obj )
+			{
 				return true;
-			if (obj == null)
+			}
+			if( obj == null )
+			{
 				return false;
-			if (getClass() != obj.getClass())
+			}
+			if( getClass() != obj.getClass() )
+			{
 				return false;
-			Registers other = (Registers) obj;
-			if (!Arrays.equals(registers, other.registers))
+			}
+			Registers other = (Registers)obj;
+			if( !Arrays.equals( registers, other.registers ) )
+			{
 				return false;
+			}
 			return true;
 		}
 	}
 
-	static class Instruction {
+	static class Instruction
+	{
 		final int a, b, c;
-		final int opCode;
+		final String op;
 
-		Instruction(String str) {
-			String[] s = str.split(" ");
-			this.opCode = Integer.parseInt(s[0]);
-			this.a = Integer.parseInt(s[1]);
-			this.b = Integer.parseInt(s[2]);
-			this.c = Integer.parseInt(s[3]);
+		Instruction(String str)
+		{
+			String[] s = str.split( " " );
+			this.op = s[0];
+			this.a = Integer.parseInt( s[1] );
+			this.b = Integer.parseInt( s[2] );
+			this.c = Integer.parseInt( s[3] );
 		}
 
 		@Override
-		public String toString() {
-			return "[" + String.valueOf(opCode) + " " + String.valueOf(a) + " " + String.valueOf(b) + " "
-					+ String.valueOf(c) + "]";
+		public String toString()
+		{
+			return "[" + op + " " + String.valueOf( a ) + " " + String.valueOf( b ) + " " + String.valueOf( c ) + "]";
 		}
 
 	}
@@ -343,13 +333,15 @@ public class Day19 implements Solution {
 	 * Functional Interface to define a evaluator takes 4 inputs and returns 1
 	 * output, specifically input Registers, a, b, c and output Registers
 	 */
-	static interface Eval {
+	static interface Eval
+	{
 		Registers eval(Registers r, int a, int b, int c);
 	}
 
 	@Override
-	public String getInputFileName() {
-		return "input_16";
+	public String getInputFileName()
+	{
+		return "input";
 	}
 
 }
