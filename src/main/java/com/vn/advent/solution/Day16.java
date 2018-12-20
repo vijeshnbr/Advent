@@ -187,7 +187,7 @@ public class Day16 implements Solution {
 		}
 
 		String inputPartTwo = parts[1];
-		Registers initial = new Registers("0, 0, 0, 0");
+		Registers initial = Registers.of(4);
 
 		String[] programInput = inputPartTwo.split("SEPARATOR");
 
@@ -292,6 +292,10 @@ public class Day16 implements Solution {
 
 		Registers getCopyOf() {
 			return new Registers(registers.clone());
+		}
+
+		static Registers of(int size) {
+			return new Registers(new int[size]);
 		}
 
 		@Override
