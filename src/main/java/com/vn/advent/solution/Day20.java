@@ -89,7 +89,7 @@ public class Day20 implements Solution {
 	void formMappingPipeline(Node<Function<Room, Room>> start, String str) {
 		List<Node<Function<Room, Room>>> children = new ArrayList<>();
 		start.children = children;
-		Function<Room, Room> next = Function.identity();
+		Function<Room, Room> next = start.data;
 		Branches branches = null;
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
