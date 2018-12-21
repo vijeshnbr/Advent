@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Day19 implements Solution {
+public class Day21 implements Solution {
 	private static final Eval addr = (registers, a, b, c) -> {
 		Registers res = registers.getCopyOf();
 		res.registers[c] = res.registers[a] + res.registers[b];
@@ -134,7 +134,7 @@ public class Day19 implements Solution {
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
-		Solution solution = new Day19();
+		Solution solution = new Day21();
 		solution.run();
 	}
 
