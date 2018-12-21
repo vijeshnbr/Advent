@@ -24,19 +24,7 @@ public class Day20 implements Solution {
 
 	@Override
 	public void partOne(Stream<String> lines) {
-		String regex = lines.findFirst()
-			.get();
-		Room origin = new Room(new Coordinates(0, 0));
-		Building.map.put(new Coordinates(0, 0), origin);
-
-		Node<Function<Room, Room>> start = new Node<>(Function.identity());
-		formMappingPipeline(start, regex);
-		formMap(start, origin);
-
-		// System.out.println();
-		// Building.map.entrySet()
-		// .stream()
-		// .forEach(System.out::println);
+		Room origin = initialize(lines);
 
 		shortestPathsFrom(origin).values()
 			.stream()
@@ -47,19 +35,31 @@ public class Day20 implements Solution {
 
 	@Override
 	public void partTwo(Stream<String> lines) {
-		String regex = lines.findFirst()
-			.get();
-		Room origin = new Room(new Coordinates(0, 0));
-		Building.map.put(new Coordinates(0, 0), origin);
-
-		Node<Function<Room, Room>> start = new Node<>(Function.identity());
-		formMappingPipeline(start, regex);
-		formMap(start, origin);
+		Room origin = initialize(lines);
 
 		System.out.print(shortestPathsFrom(origin).values()
 			.stream()
 			.filter(doors -> doors >= 1000)
 			.count());
+	}
+
+	private Room initialize(Stream<String> lines) {
+		String regex = lines.findFirst()
+			.get();
+		Room origin = new Room(new Coordinates(0, 0));
+		Building.map.put(new Coordinates(0, 0), origin);
+
+		// Below is a function pipeline that is in form of a tree - converted
+		// from the given regex, representing the actions (go east, west,.. etc)
+		// in form of functions
+		// that need to be executed in input regex's order
+		TreeNode<Function<Room, Room>> start = new TreeNode<>(Function.identity());
+		formMappingPipeline(start, regex);
+
+		// Form the actual map in the building so that each room is now linked
+		// to other possible rooms - to do this feed raw data to above pipeline.
+		formMap(start, origin);
+		return origin;
 	}
 
 	private Map<Room, Integer> shortestPathsFrom(Room origin) {
@@ -79,15 +79,15 @@ public class Day20 implements Solution {
 		return roomAndDistance;
 	}
 
-	private void formMap(Node<Function<Room, Room>> root, Room origin) {
+	private void formMap(TreeNode<Function<Room, Room>> root, Room origin) {
 		Room after = root.data.apply(origin);
-		for (Node<Function<Room, Room>> child : root.children) {
+		for (TreeNode<Function<Room, Room>> child : root.children) {
 			formMap(child, after);
 		}
 	}
 
-	void formMappingPipeline(Node<Function<Room, Room>> start, String str) {
-		List<Node<Function<Room, Room>>> children = new ArrayList<>();
+	void formMappingPipeline(TreeNode<Function<Room, Room>> start, String str) {
+		List<TreeNode<Function<Room, Room>>> children = new ArrayList<>();
 		start.children = children;
 		Function<Room, Room> next = start.data;
 		Branches branches = null;
@@ -116,7 +116,7 @@ public class Day20 implements Solution {
 		start.data = next;
 		if (branches != null) {
 			for (String branch : branches.branches) {
-				Node<Function<Room, Room>> branchStart = new Node<>(Function.identity());
+				TreeNode<Function<Room, Room>> branchStart = new TreeNode<>(Function.identity());
 				children.add(branchStart);
 				formMappingPipeline(branchStart, branch + str.substring(branches.endIndex, str.length()));
 			}
@@ -179,11 +179,11 @@ public class Day20 implements Solution {
 		return branch;
 	}
 
-	public static class Node<T> {
+	public static class TreeNode<T> {
 		private T data;
-		private List<Node<T>> children;
+		private List<TreeNode<T>> children;
 
-		Node(T data) {
+		TreeNode(T data) {
 			this.data = data;
 		}
 	}
