@@ -27,6 +27,6 @@ addi 3 1 3
 seti 17 4 2
 setr 3 1 1
 seti 7 5 2
-eqrr 4 0 3
+eqrr 4 0 3 - - check when d = a and find when that first happens and submit that for part1
 addr 3 2 2
 seti 5 1 2
