@@ -1,5 +1,6 @@
 package com.vn.advent.solution;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,37 @@ public class Day15 implements Solution {
 					}
 				}
 			}
+		}
+		boolean combat = true;
+		int rounds = 0;
+		while (combat) {
+			// Do rounds
+			Collection<Unit> units = YuddhBhoomi.units.values();
+			Map<Type, List<Unit>> unitsByType = units.stream()
+				.collect(Collectors.groupingBy(Unit::type));
+			for (Unit u : units) {
+				// Take turns in order - values of TreeMap will be ordered by
+				// their keys which are ordered according to reading order as
+				// specified in problem
+				List<Unit> enemyUnits = unitsByType.get(u.type()
+					.enemy());
+				// check if enemy unit in range
+				u.range()
+					.stream()
+					.map(YuddhBhoomi.units::get)
+					.filter(Objects::nonNull)
+					.filter(it -> it.type() == u.type()
+						.enemy())
+					.min(Comparator.comparing(Unit::hp)
+						.thenComparing(Unit::loc));
+
+				Set<Coordinates> rangesOfAllEnemyUnits = enemyUnits.stream()
+					.map(Unit::range)
+					.flatMap(Set::stream)
+					.collect(Collectors.toSet());
+
+			}
+			rounds++;
 		}
 
 	}
@@ -128,18 +160,34 @@ public class Day15 implements Solution {
 	}
 
 	static interface Unit {
+		final Map<Coordinates, OpenCavern> field = YuddhBhoomi.field;
+
+		final int AP = 3;
+
 		Type type();
 
 		Coordinates loc();
 
-		default Set<OpenCavern> getRange(Map<Coordinates, OpenCavern> field) {
-			Set<OpenCavern> s = new HashSet<>();
-			return s;
+		int hp();
+
+		void defend(Unit enemy);
+
+		default Set<Coordinates> range() {
+			return loc().range()
+				.stream()
+				.filter(field.keySet()::contains)
+				.collect(Collectors.toSet());
+		}
+
+		default void attack(Unit enemy) {
+			enemy.defend(this);
 		}
 	}
 
 	static class Goblin implements Unit {
 		Coordinates c;
+
+		int hp = 200;
 
 		Goblin(Coordinates c) {
 			this.c = c;
@@ -152,14 +200,25 @@ public class Day15 implements Solution {
 
 		@Override
 		public Coordinates loc() {
-			// TODO Auto-generated method stub
-			return null;
+			return c;
+		}
+
+		@Override
+		public int hp() {
+			return hp;
+		}
+
+		@Override
+		public void defend(Unit enemy) {
+			hp = hp - enemy.AP;
 		}
 
 	}
 
 	static class Elf implements Unit {
 		Coordinates c;
+
+		int hp = 200;
 
 		Elf(Coordinates c) {
 			this.c = c;
@@ -172,13 +231,31 @@ public class Day15 implements Solution {
 
 		@Override
 		public Coordinates loc() {
-			// TODO Auto-generated method stub
-			return null;
+			return c;
 		}
+
+		@Override
+		public int hp() {
+			return hp;
+		}
+
+		@Override
+		public void defend(Unit enemy) {
+			hp = hp - enemy.AP;
+		}
+
 	}
 
 	static enum Type {
-		GOBLIN, ELF
+		GOBLIN, ELF;
+		Type enemy() {
+			Type enemy = null;
+			if (this == GOBLIN)
+				enemy = ELF;
+			if (this == ELF)
+				enemy = GOBLIN;
+			return enemy;
+		}
 	}
 
 	@Override
