@@ -51,6 +51,9 @@ public class Day15 implements Solution {
 			// initialized from remaining units at the beginning of every round
 			List<Unit> units = new ArrayList<>(remainingUnits.values());
 
+			// Dead in round for debug
+			List<Unit> deadInRoundDEBUG = new ArrayList<>();
+
 			// Above units list is iterated for turns but the original TreeMap
 			// (remainingUnits) is modified whenever unit moves, attacks, dies
 			for (Unit u : units) {
@@ -94,6 +97,8 @@ public class Day15 implements Solution {
 						// Enemy died - add to set of dead units. Remove
 						// from remainingUnits
 						deadUnits.add(enemy);
+						// Remove - only for debug
+						deadInRoundDEBUG.add(enemy);
 						remainingUnits.remove(enemy.loc());
 					}
 				});
@@ -161,6 +166,8 @@ public class Day15 implements Solution {
 										// units. Remove
 										// from remainingUnits
 										deadUnits.add(enemy);
+										// Remove - only for debug
+										deadInRoundDEBUG.add(enemy);
 										remainingUnits.remove(enemy.loc());
 									}
 								});
@@ -192,133 +199,42 @@ public class Day15 implements Solution {
 				rounds++;
 			else
 				break;
-			System.out.println("Round " + rounds + " Units " + remainingUnits);
+			print(rounds, deadInRoundDEBUG, remainingUnits);
+			// System.out.println("Round " + rounds + " Units " +
+			// remainingUnits);
 		}
 		System.out.print(rounds * sumOfHPsOfUnitsRemaining);
 	}
 
-	private Map<Coordinates, Unit> copyOfTreeMapOfAllInitialUnits() {
-		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(
-				Coordinates.compareLocations);
-		ALL_INITIAL_UNITS.entrySet()
-			.stream()
-			.forEach(e -> remainingUnits.put(e.getKey(), e.getValue()
-				.copyOf()));
-		return remainingUnits;
-	}
-
-	private void initializeBattlefieldAndUnits(Stream<String> lines) {
-		List<String> inputLines = lines.map(String::trim)
-			.map(s -> s.substring(0, (s.lastIndexOf('#') + 1)))
-			.collect(Collectors.toList());
-		int y = 0;
-		for (String line : inputLines) {
-			for (int x = 0; x < line.length(); x++) {
-				if (line.charAt(x) != '#') {
-					Coordinates c = new Coordinates(x, y);
-					OpenCavern o = new OpenCavern(c);
-					BATTLEFIELD.put(c, o);
-					if (line.charAt(x) == 'G') {
-						Unit u = new Goblin(c);
-						ALL_INITIAL_UNITS.put(c, u);
-					} else if (line.charAt(x) == 'E') {
-						Unit u = new Elf(c);
-						ALL_INITIAL_UNITS.put(c, u);
+	private void print(int rounds, List<Unit> deadInRound,
+			Map<Coordinates, Unit> remainingUnits) {
+		System.out
+			.println("Round " + rounds + "\tDead in round " + deadInRound);
+		for (int y = 0; y < 32; y++) {
+			List<Unit> unitsInRow = new ArrayList<>();
+			for (int x = 0; x < 32; x++) {
+				Coordinates c = new Coordinates(x, y);
+				if (!BATTLEFIELD.containsKey(c))
+					System.out.print('#');
+				else {
+					if (!remainingUnits.containsKey(c)) {
+						System.out.print('.');
+					} else {
+						Unit unit = remainingUnits.get(c);
+						unitsInRow.add(unit);
+						if (unit.type() == Type.GOBLIN)
+							System.out.print('G');
+						else if (unit.type() == Type.ELF)
+							System.out.print('E');
 					}
 				}
 			}
-			y++;
+			System.out.println("\t" + unitsInRow);
 		}
 	}
 
-	static class OpenCavern {
-		Coordinates c;
-
-		OpenCavern(Coordinates c) {
-			this.c = c;
-		}
-	}
-
-	static class Coordinates {
-
-		public static final Comparator<Coordinates> compareLocations = Comparator
-			.comparing(Coordinates::getY)
-			.thenComparing(Coordinates::getX);
-
-		final int x, y;
-
-		Coordinates(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		public Coordinates up() {
-			return new Coordinates(x, y - 1);
-		}
-
-		public Coordinates left() {
-			return new Coordinates(x - 1, y);
-		}
-
-		public Coordinates right() {
-			return new Coordinates(x + 1, y);
-		}
-
-		public Coordinates down() {
-			return new Coordinates(x, y + 1);
-		}
-
-		int getX() {
-			return x;
-		}
-
-		int getY() {
-			return y;
-		}
-
-		public Set<Coordinates> range() {
-			Set<Coordinates> s = new HashSet<>();
-			s.add(up());
-			s.add(left());
-			s.add(right());
-			s.add(down());
-			return s;
-		}
-
-		public List<Coordinates> rangeOrdered() {
-			List<Coordinates> l = new ArrayList<>();
-			l.add(up());
-			l.add(left());
-			l.add(right());
-			l.add(down());
-			return l;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(x, y);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Coordinates other = (Coordinates) obj;
-			if (x != other.x)
-				return false;
-			if (y != other.y)
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return x + "," + y;
-		}
+	@Override
+	public void partTwo(Stream<String> lines) {
 
 	}
 
@@ -521,9 +437,129 @@ public class Day15 implements Solution {
 		}
 	}
 
-	@Override
-	public void partTwo(Stream<String> lines) {
+	static class OpenCavern {
+		Coordinates c;
 
+		OpenCavern(Coordinates c) {
+			this.c = c;
+		}
+	}
+
+	static class Coordinates {
+
+		public static final Comparator<Coordinates> compareLocations = Comparator
+			.comparing(Coordinates::getY)
+			.thenComparing(Coordinates::getX);
+
+		final int x, y;
+
+		Coordinates(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public Coordinates up() {
+			return new Coordinates(x, y - 1);
+		}
+
+		public Coordinates left() {
+			return new Coordinates(x - 1, y);
+		}
+
+		public Coordinates right() {
+			return new Coordinates(x + 1, y);
+		}
+
+		public Coordinates down() {
+			return new Coordinates(x, y + 1);
+		}
+
+		int getX() {
+			return x;
+		}
+
+		int getY() {
+			return y;
+		}
+
+		public Set<Coordinates> range() {
+			Set<Coordinates> s = new HashSet<>();
+			s.add(up());
+			s.add(left());
+			s.add(right());
+			s.add(down());
+			return s;
+		}
+
+		public List<Coordinates> rangeOrdered() {
+			List<Coordinates> l = new ArrayList<>();
+			l.add(up());
+			l.add(left());
+			l.add(right());
+			l.add(down());
+			return l;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(x, y);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Coordinates other = (Coordinates) obj;
+			if (x != other.x)
+				return false;
+			if (y != other.y)
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return x + "," + y;
+		}
+
+	}
+
+	private Map<Coordinates, Unit> copyOfTreeMapOfAllInitialUnits() {
+		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(
+				Coordinates.compareLocations);
+		ALL_INITIAL_UNITS.entrySet()
+			.stream()
+			.forEach(e -> remainingUnits.put(e.getKey(), e.getValue()
+				.copyOf()));
+		return remainingUnits;
+	}
+
+	private void initializeBattlefieldAndUnits(Stream<String> lines) {
+		List<String> inputLines = lines.map(String::trim)
+			.map(s -> s.substring(0, (s.lastIndexOf('#') + 1)))
+			.collect(Collectors.toList());
+		int y = 0;
+		for (String line : inputLines) {
+			for (int x = 0; x < line.length(); x++) {
+				if (line.charAt(x) != '#') {
+					Coordinates c = new Coordinates(x, y);
+					OpenCavern o = new OpenCavern(c);
+					BATTLEFIELD.put(c, o);
+					if (line.charAt(x) == 'G') {
+						Unit u = new Goblin(c);
+						ALL_INITIAL_UNITS.put(c, u);
+					} else if (line.charAt(x) == 'E') {
+						Unit u = new Elf(c);
+						ALL_INITIAL_UNITS.put(c, u);
+					}
+				}
+			}
+			y++;
+		}
 	}
 
 	@Override
