@@ -74,6 +74,7 @@ public class Day15 implements Solution {
 					break;
 				}
 
+				// See if enemy in range and attack
 				boolean attacked = attackIfEnemyInRange(remainingUnits, enemyUnits, deadUnits, u);
 
 				if (!attacked) {
@@ -168,7 +169,7 @@ public class Day15 implements Solution {
 				rounds++;
 			else
 				break;
-			// print(rounds, remainingUnits);
+			LOGGER.info(print(rounds, remainingUnits));
 		}
 		System.out.print(rounds * sumOfHPsOfUnitsRemaining);
 	}
@@ -227,29 +228,33 @@ public class Day15 implements Solution {
 		return targetEnemy.isPresent();
 	}
 
-	private void print(int rounds, Map<Coordinates, Unit> remainingUnits) {
-		System.out.println("Round " + rounds);
+	private String print(int rounds, Map<Coordinates, Unit> remainingUnits) {
+		StringBuilder s = new StringBuilder();
+		s.append("Round " + rounds)
+			.append("\n");
 		for (int y = 0; y < 32; y++) {
 			List<Unit> unitsInRow = new ArrayList<>();
 			for (int x = 0; x < 32; x++) {
 				Coordinates c = new Coordinates(x, y);
 				if (!BATTLEFIELD.containsKey(c))
-					System.out.print('#');
+					s.append('#');
 				else {
 					if (!remainingUnits.containsKey(c)) {
-						System.out.print('.');
+						s.append('.');
 					} else {
 						Unit unit = remainingUnits.get(c);
 						unitsInRow.add(unit);
 						if (unit.type() == Type.GOBLIN)
-							System.out.print('G');
+							s.append('G');
 						else if (unit.type() == Type.ELF)
-							System.out.print('E');
+							s.append('E');
 					}
 				}
 			}
-			System.out.println("\t" + unitsInRow);
+			s.append("\t" + unitsInRow)
+				.append("\n");
 		}
+		return s.toString();
 	}
 
 	private boolean elfNotDead(Set<Unit> deadUnits) {
