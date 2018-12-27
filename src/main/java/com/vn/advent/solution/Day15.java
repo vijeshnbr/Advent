@@ -121,9 +121,8 @@ public class Day15 implements Solution {
 					Queue<Coordinates> queue = new LinkedList<>();
 					queue.add(start);
 					Map<Coordinates, Coordinates> locationParentMap = new HashMap<>();
-					// Set<Coordinates> visited = new HashSet<>();
 
-					// Below line instead of visited
+					// Put start coordinates with parent as null
 					locationParentMap.put(start, null);
 
 					Map<Coordinates, Coordinates> mapOfMoveToAndEnemyRange = new HashMap<>();
@@ -160,7 +159,6 @@ public class Day15 implements Solution {
 								.filter(BATTLEFIELD::containsKey)
 								.filter(c -> !locationParentMap.containsKey(c))
 								.filter(c -> !remainingUnits.containsKey(c))
-								// .sorted(Coordinates.compareLocations)
 								.forEach(c -> {
 									locationParentMap.put(c, curr);
 									queue.offer(c);
@@ -256,12 +254,39 @@ public class Day15 implements Solution {
 
 	@Override
 	public void partTwo(Stream<String> lines) {
+		System.out.println();
+		initializeBattlefieldAndUnits(lines);
 
+		boolean combat = false;
+		int rounds = 0;
+		int sumOfHPsOfUnitsRemaining = 0;
+
+		Map<Coordinates, Unit> remainingUnits = copyOfTreeMapOfAllInitialUnits();
+
+		// Collect dead Units here
+		Set<Unit> deadUnits = new HashSet<>();
+
+		int elfPower = Integer.MAX_VALUE;
+
+		boolean elvesWin = true;
+		while (elfNotDead(deadUnits) && elvesWin) {
+			Elf.AP = elfPower;
+
+			elfPower = elfPower / 2;
+		}
+
+		while (combat) {
+
+		}
+	}
+
+	private boolean elfNotDead(Set<Unit> deadUnits) {
+		return deadUnits.stream()
+			.filter(u -> u.type() == Type.ELF)
+			.count() == 0;
 	}
 
 	static interface Unit {
-
-		final int AP = 3;
 
 		Comparator<Unit> compareUnits = Comparator.comparing(Unit::hp)
 			.thenComparing(Unit::loc, Coordinates.compareLocations);
@@ -275,6 +300,8 @@ public class Day15 implements Solution {
 		int hp();
 
 		void defend(Unit enemy);
+
+		int getAP();
 
 		// Return copy object of Unit
 		Unit copyOf();
@@ -291,6 +318,7 @@ public class Day15 implements Solution {
 	}
 
 	static class Goblin implements Unit {
+		private static final int AP = 3;
 		Coordinates loc;
 		// id field used to identify Unit is the initial coordinates of the Unit
 		// when the Battlefield was initialized
@@ -332,7 +360,7 @@ public class Day15 implements Solution {
 
 		@Override
 		public void defend(Unit enemy) {
-			hp = hp - enemy.AP;
+			hp = hp - enemy.getAP();
 		}
 
 		@Override
@@ -367,9 +395,15 @@ public class Day15 implements Solution {
 			return "G<(" + loc + ")," + hp + ">";
 		}
 
+		@Override
+		public int getAP() {
+			return AP;
+		}
+
 	}
 
 	static class Elf implements Unit {
+		public static int AP = 3;
 		Coordinates loc;
 
 		final Coordinates id;
@@ -410,7 +444,7 @@ public class Day15 implements Solution {
 
 		@Override
 		public void defend(Unit enemy) {
-			hp = hp - enemy.AP;
+			hp = hp - enemy.getAP();
 		}
 
 		@Override
@@ -443,6 +477,11 @@ public class Day15 implements Solution {
 		@Override
 		public String toString() {
 			return "E<(" + loc + ")," + hp + ">";
+		}
+
+		@Override
+		public int getAP() {
+			return AP;
 		}
 	}
 
@@ -560,6 +599,8 @@ public class Day15 implements Solution {
 	}
 
 	private void initializeBattlefieldAndUnits(Stream<String> lines) {
+		BATTLEFIELD.clear();
+		ALL_INITIAL_UNITS.clear();
 		List<String> inputLines = lines.map(String::trim)
 			.map(s -> s.substring(0, (s.lastIndexOf('#') + 1)))
 			.collect(Collectors.toList());
