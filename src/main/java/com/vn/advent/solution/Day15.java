@@ -18,11 +18,9 @@ import java.util.stream.Stream;
 
 public class Day15 implements Solution {
 
-	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(
-			Coordinates.compareLocations);
+	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(Coordinates.compareLocations);
 
-	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(
-			Coordinates.compareLocations);
+	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(Coordinates.compareLocations);
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
@@ -51,9 +49,6 @@ public class Day15 implements Solution {
 			// initialized from remaining units at the beginning of every round
 			List<Unit> units = new ArrayList<>(remainingUnits.values());
 
-			// Dead in round for debug
-			List<Unit> deadInRoundDEBUG = new ArrayList<>();
-
 			// Above units list is iterated for turns but the original TreeMap
 			// (remainingUnits) is modified whenever unit moves, attacks, dies
 			for (Unit u : units) {
@@ -79,32 +74,11 @@ public class Day15 implements Solution {
 					break;
 				}
 
-				// Get closest enemy unit in range of current unit, if multiple
-				// get enemy with fewest hit points, if tied - get first
-				// in reading order. It is an optional as enemy may not be
-				// present in unit's range.
-				Optional<Unit> targetEnemy = u.range()
-					.stream()
-					.filter(remainingUnits::containsKey)
-					.map(remainingUnits::get)
-					.filter(enemyUnits::contains)
-					.min(Unit.compareUnits);
+				boolean attacked = attackIfEnemyInRange(remainingUnits, enemyUnits, deadUnits, u);
 
-				// if present attack target enemy
-				targetEnemy.ifPresent(enemy -> {
-					u.attack(enemy);
-					if (enemy.hp() <= 0) {
-						// Enemy died - add to set of dead units. Remove
-						// from remainingUnits
-						deadUnits.add(enemy);
-						// Remove - only for debug
-						deadInRoundDEBUG.add(enemy);
-						remainingUnits.remove(enemy.loc());
-					}
-				});
-
-				if (!targetEnemy.isPresent()) {
-					// else make one best move towards the closest range of
+				if (!attacked) {
+					// If not attacked an enemy - then move according to below
+					// make one best move towards the closest range of
 					// closest enemy
 
 					// Get ranges of all enemies that are not occupied by units
@@ -167,11 +141,13 @@ public class Day15 implements Solution {
 					}
 
 					// Move after break from BFS
-					Optional<Coordinates> moveTo = mapOfMoveToAndEnemyRange
-						.entrySet()
+					// To choose where to move has to be done carefully as ties
+					// in shortest paths should be broken by choosing the path
+					// that leads to a square in range of enemy - such that
+					// square is first in reading order among all tied cases
+					Optional<Coordinates> moveTo = mapOfMoveToAndEnemyRange.entrySet()
 						.stream()
-						.min(Map.Entry
-							.comparingByValue(Coordinates.compareLocations))
+						.min(Map.Entry.comparingByValue(Coordinates.compareLocations))
 						.map(Map.Entry::getKey);
 					if (moveTo.isPresent()) {
 						Coordinates move = moveTo.get();
@@ -183,33 +159,7 @@ public class Day15 implements Solution {
 						// in its current turn, then don't end turn yet, but
 						// attack enemy and end turn
 						if (move.equals(mapOfMoveToAndEnemyRange.get(move))) {
-							// Get closest enemy unit in range of current
-							// unit, if multiple
-							// get enemy with fewest hit points, if tied -
-							// get first
-							// in reading order. It is an optional as enemy
-							// may not be
-							// present in unit's range.
-							Optional<Unit> target = u.range()
-								.stream()
-								.filter(remainingUnits::containsKey)
-								.map(remainingUnits::get)
-								.filter(enemyUnits::contains)
-								.min(Unit.compareUnits);
-
-							// if present attack target enemy
-							target.ifPresent(enemy -> {
-								u.attack(enemy);
-								if (enemy.hp() <= 0) {
-									// Enemy died - add to set of dead
-									// units. Remove
-									// from remainingUnits
-									deadUnits.add(enemy);
-									// Remove - only for debug
-									deadInRoundDEBUG.add(enemy);
-									remainingUnits.remove(enemy.loc());
-								}
-							});
+							attackIfEnemyInRange(remainingUnits, enemyUnits, deadUnits, u);
 						}
 					}
 				}
@@ -218,17 +168,67 @@ public class Day15 implements Solution {
 				rounds++;
 			else
 				break;
-			print(rounds, deadInRoundDEBUG, remainingUnits);
-			// System.out.println("Round " + rounds + " Units " +
-			// remainingUnits);
+			// print(rounds, remainingUnits);
 		}
 		System.out.print(rounds * sumOfHPsOfUnitsRemaining);
 	}
 
-	private void print(int rounds, List<Unit> deadInRound,
-			Map<Coordinates, Unit> remainingUnits) {
-		System.out
-			.println("Round " + rounds + "\tDead in round " + deadInRound);
+	@Override
+	public void partTwo(Stream<String> lines) {
+		System.out.println();
+		initializeBattlefieldAndUnits(lines);
+
+		boolean combat = false;
+		int rounds = 0;
+		int sumOfHPsOfUnitsRemaining = 0;
+
+		Map<Coordinates, Unit> remainingUnits = copyOfTreeMapOfAllInitialUnits();
+
+		// Collect dead Units here
+		Set<Unit> deadUnits = new HashSet<>();
+
+		int elfPower = Integer.MAX_VALUE;
+
+		boolean elvesWin = false;
+		while (elfNotDead(deadUnits) && elvesWin) {
+			Elf.AP = elfPower;
+
+			elfPower = elfPower / 2;
+		}
+
+		while (combat) {
+
+		}
+	}
+
+	private boolean attackIfEnemyInRange(Map<Coordinates, Unit> remainingUnits, Set<Unit> enemyUnits,
+			Set<Unit> deadUnits, Unit u) {
+		// Get closest enemy unit in range of current unit, if multiple
+		// get enemy with fewest hit points, if tied - get first
+		// in reading order. It is an optional as enemy may not be
+		// present in unit's range.
+		Optional<Unit> targetEnemy = u.range()
+			.stream()
+			.filter(remainingUnits::containsKey)
+			.map(remainingUnits::get)
+			.filter(enemyUnits::contains)
+			.min(Unit.compareUnits);
+
+		// if present attack target enemy
+		targetEnemy.ifPresent(enemy -> {
+			u.attack(enemy);
+			if (enemy.hp() <= 0) {
+				// Enemy died - add to set of dead units. Remove
+				// from remainingUnits
+				deadUnits.add(enemy);
+				remainingUnits.remove(enemy.loc());
+			}
+		});
+		return targetEnemy.isPresent();
+	}
+
+	private void print(int rounds, Map<Coordinates, Unit> remainingUnits) {
+		System.out.println("Round " + rounds);
 		for (int y = 0; y < 32; y++) {
 			List<Unit> unitsInRow = new ArrayList<>();
 			for (int x = 0; x < 32; x++) {
@@ -249,34 +249,6 @@ public class Day15 implements Solution {
 				}
 			}
 			System.out.println("\t" + unitsInRow);
-		}
-	}
-
-	@Override
-	public void partTwo(Stream<String> lines) {
-		System.out.println();
-		initializeBattlefieldAndUnits(lines);
-
-		boolean combat = false;
-		int rounds = 0;
-		int sumOfHPsOfUnitsRemaining = 0;
-
-		Map<Coordinates, Unit> remainingUnits = copyOfTreeMapOfAllInitialUnits();
-
-		// Collect dead Units here
-		Set<Unit> deadUnits = new HashSet<>();
-
-		int elfPower = Integer.MAX_VALUE;
-
-		boolean elvesWin = true;
-		while (elfNotDead(deadUnits) && elvesWin) {
-			Elf.AP = elfPower;
-
-			elfPower = elfPower / 2;
-		}
-
-		while (combat) {
-
 		}
 	}
 
@@ -507,8 +479,7 @@ public class Day15 implements Solution {
 
 	static class Coordinates {
 
-		public static final Comparator<Coordinates> compareLocations = Comparator
-			.comparing(Coordinates::getY)
+		public static final Comparator<Coordinates> compareLocations = Comparator.comparing(Coordinates::getY)
 			.thenComparing(Coordinates::getX);
 
 		final int x, y;
@@ -589,8 +560,7 @@ public class Day15 implements Solution {
 	}
 
 	private Map<Coordinates, Unit> copyOfTreeMapOfAllInitialUnits() {
-		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(
-				Coordinates.compareLocations);
+		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(Coordinates.compareLocations);
 		ALL_INITIAL_UNITS.entrySet()
 			.stream()
 			.forEach(e -> remainingUnits.put(e.getKey(), e.getValue()
