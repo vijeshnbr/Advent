@@ -33,9 +33,35 @@ public class Day15 implements Solution {
 		System.out.println();
 		initializeBattlefieldAndUnits(lines);
 
+		Stats stats = battle();
+		LOGGER.log(Level.INFO, "{0}", stats);
+		System.out.print(stats.outcome());
+	}
+
+	@Override
+	public void partTwo(Stream<String> lines) {
+		System.out.println();
+		initializeBattlefieldAndUnits(lines);
+		// Collect dead Units here
+		Set<Unit> deadUnits = new HashSet<>();
+
+		int elfPower = Integer.MAX_VALUE;
+		Stats stats;
+
+		boolean elvesWin = false;
+		while (elfNotDead(deadUnits) && elvesWin) {
+
+			Elf.AP = elfPower;
+
+			elfPower = elfPower / 2;
+
+			stats = battle();
+		}
+	}
+
+	private Stats battle() {
 		boolean combat = true;
 		int rounds = 0;
-		int sumOfHPsOfUnitsRemaining = 0;
 
 		Map<Coordinates, Unit> remainingUnits = copyOfTreeMapOfAllInitialUnits();
 
@@ -67,10 +93,6 @@ public class Day15 implements Solution {
 				if (enemyUnits == null || enemyUnits.isEmpty()) {
 					// Combat ends as no enemy found
 					combat = false;
-					sumOfHPsOfUnitsRemaining = remainingUnits.values()
-						.stream()
-						.mapToInt(Unit::hp)
-						.sum();
 					break;
 				}
 
@@ -171,34 +193,36 @@ public class Day15 implements Solution {
 				break;
 			LOGGER.info(print(rounds, remainingUnits));
 		}
-		System.out.print(rounds * sumOfHPsOfUnitsRemaining);
+		Stats stats = new Stats(rounds, remainingUnits);
+		return stats;
 	}
 
-	@Override
-	public void partTwo(Stream<String> lines) {
-		System.out.println();
-		initializeBattlefieldAndUnits(lines);
+	static class Stats {
+		final int rounds;
+		final Map<Coordinates, Unit> remainingUnits;
 
-		boolean combat = false;
-		int rounds = 0;
-		int sumOfHPsOfUnitsRemaining = 0;
-
-		Map<Coordinates, Unit> remainingUnits = copyOfTreeMapOfAllInitialUnits();
-
-		// Collect dead Units here
-		Set<Unit> deadUnits = new HashSet<>();
-
-		int elfPower = Integer.MAX_VALUE;
-
-		boolean elvesWin = false;
-		while (elfNotDead(deadUnits) && elvesWin) {
-			Elf.AP = elfPower;
-
-			elfPower = elfPower / 2;
+		Stats(int rounds, Map<Coordinates, Unit> remainingUnits) {
+			this.rounds = rounds;
+			this.remainingUnits = remainingUnits;
 		}
 
-		while (combat) {
+		int outcome() {
+			return rounds * remainingUnits.values()
+				.stream()
+				.mapToInt(Unit::hp)
+				.sum();
+		}
 
+		Optional<Type> winner() {
+			return remainingUnits.values()
+				.parallelStream()
+				.findAny()
+				.map(Unit::type);
+		}
+
+		@Override
+		public String toString() {
+			return "Stats [rounds=" + rounds + ", winner=" + winner().get() + ", outcome=" + outcome() + "]";
 		}
 	}
 
