@@ -125,6 +125,10 @@ public class Day15 implements Solution {
 
 					// Below line instead of visited
 					locationParentMap.put(start, null);
+
+					Map<Coordinates, Coordinates> mapOfMoveToAndEnemyRange = new HashMap<>();
+					Map<Coordinates, Integer> mapOfMoveToAndDistance = new HashMap<>();
+					int maxDistance = Integer.MAX_VALUE;
 					while (!queue.isEmpty()) {
 						Coordinates curr = queue.poll();
 						if (rangesOfAllEnemyUnits.contains(curr)) {
@@ -133,47 +137,17 @@ public class Day15 implements Solution {
 							// parent of curr recursively until node whose
 							// parent is start
 							Coordinates move = curr;
+							int distance = 1;
 							while (locationParentMap.get(move) != start) {
 								move = locationParentMap.get(move);
+								distance++;
 							}
-							u.moveTo(move);
-							remainingUnits.remove(start);
-							remainingUnits.put(move, u);
-
-							// Extra logic - if unit moves into range of enemy
-							// in its current turn, then don't end turn yet, but
-							// attack enemy and end turn
-							if (move == curr) {
-								// Get closest enemy unit in range of current
-								// unit, if multiple
-								// get enemy with fewest hit points, if tied -
-								// get first
-								// in reading order. It is an optional as enemy
-								// may not be
-								// present in unit's range.
-								Optional<Unit> target = u.range()
-									.stream()
-									.filter(remainingUnits::containsKey)
-									.map(remainingUnits::get)
-									.filter(enemyUnits::contains)
-									.min(Unit.compareUnits);
-
-								// if present attack target enemy
-								target.ifPresent(enemy -> {
-									u.attack(enemy);
-									if (enemy.hp() <= 0) {
-										// Enemy died - add to set of dead
-										// units. Remove
-										// from remainingUnits
-										deadUnits.add(enemy);
-										// Remove - only for debug
-										deadInRoundDEBUG.add(enemy);
-										remainingUnits.remove(enemy.loc());
-									}
-								});
-							}
-							// Break out of BFS
-							break;
+							if (distance > maxDistance)
+								// Break out of BFS
+								break;
+							maxDistance = distance;
+							mapOfMoveToAndEnemyRange.put(move, curr);
+							mapOfMoveToAndDistance.put(move, distance);
 						} else {
 							// Continue to search neighbors (coordinates in
 							// range of curr) - check if they are open caverns
@@ -191,6 +165,53 @@ public class Day15 implements Solution {
 									locationParentMap.put(c, curr);
 									queue.offer(c);
 								});
+						}
+					}
+
+					// Move after break from BFS
+					Optional<Coordinates> moveTo = mapOfMoveToAndEnemyRange
+						.entrySet()
+						.stream()
+						.min(Map.Entry
+							.comparingByValue(Coordinates.compareLocations))
+						.map(Map.Entry::getKey);
+					if (moveTo.isPresent()) {
+						Coordinates move = moveTo.get();
+						u.moveTo(move);
+						remainingUnits.remove(start);
+						remainingUnits.put(move, u);
+
+						// Extra logic - if unit moves into range of enemy
+						// in its current turn, then don't end turn yet, but
+						// attack enemy and end turn
+						if (move.equals(mapOfMoveToAndEnemyRange.get(move))) {
+							// Get closest enemy unit in range of current
+							// unit, if multiple
+							// get enemy with fewest hit points, if tied -
+							// get first
+							// in reading order. It is an optional as enemy
+							// may not be
+							// present in unit's range.
+							Optional<Unit> target = u.range()
+								.stream()
+								.filter(remainingUnits::containsKey)
+								.map(remainingUnits::get)
+								.filter(enemyUnits::contains)
+								.min(Unit.compareUnits);
+
+							// if present attack target enemy
+							target.ifPresent(enemy -> {
+								u.attack(enemy);
+								if (enemy.hp() <= 0) {
+									// Enemy died - add to set of dead
+									// units. Remove
+									// from remainingUnits
+									deadUnits.add(enemy);
+									// Remove - only for debug
+									deadInRoundDEBUG.add(enemy);
+									remainingUnits.remove(enemy.loc());
+								}
+							});
 						}
 					}
 				}
@@ -564,7 +585,7 @@ public class Day15 implements Solution {
 
 	@Override
 	public String getInputFileName() {
-		return "t8";
+		return "input_15";
 	}
 
 }
