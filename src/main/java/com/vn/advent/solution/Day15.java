@@ -20,8 +20,9 @@ import java.util.stream.Stream;
 public class Day15 implements Solution {
 
 	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(Coordinates.compareLocations);
-
 	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(Coordinates.compareLocations);
+	private static final Predicate<Stats> ELVES_WON_AND_NO_ELVES_DIED = stats -> stats.winner() == Type.ELF
+			&& stats.elfNotDead();
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
@@ -42,9 +43,6 @@ public class Day15 implements Solution {
 	public void partTwo(Stream<String> lines) {
 		System.out.println();
 		initializeBattlefieldAndUnits(lines);
-
-		Predicate<Stats> testStatsIfElfWonAndZeroElvesDied = stats -> stats.winner() == Type.ELF && stats.elfNotDead();
-
 		int elfPowerMin = 4;
 		int elfPowerMax = Integer.MAX_VALUE - elfPowerMin;
 
@@ -60,16 +58,15 @@ public class Day15 implements Solution {
 			statsMin = battle();
 			LOGGER.info(
 					"Min Stats ElfPower: " + elfPowerMin + ", " + statsMin + ", elfNotDead: " + statsMin.elfNotDead());
-			if (testStatsIfElfWonAndZeroElvesDied.test(statsMin)) {
+			if (ELVES_WON_AND_NO_ELVES_DIED.test(statsMin)) {
 				break;
 			} else {
-				if (testStatsIfElfWonAndZeroElvesDied.negate()
-					.test(statsMax)) {
-					elfPowerMin = elfPowerMax;
-					elfPowerMax = elfPowerMax * 2;
-				} else {
+				if (ELVES_WON_AND_NO_ELVES_DIED.test(statsMax)) {
 					elfPowerMax = (elfPowerMax + elfPowerMin) / 2;
 					elfPowerMin++;
+				} else {
+					elfPowerMin = elfPowerMax;
+					elfPowerMax = elfPowerMax * 2;
 				}
 			}
 		}
