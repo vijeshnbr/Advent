@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,7 +33,6 @@ public class Day15 implements Solution {
 	public void partOne(Stream<String> lines) {
 		System.out.println();
 		initializeBattlefieldAndUnits(lines);
-
 		Stats stats = battle();
 		LOGGER.log(Level.INFO, "{0}", stats);
 		System.out.print(stats.outcome());
@@ -42,21 +42,38 @@ public class Day15 implements Solution {
 	public void partTwo(Stream<String> lines) {
 		System.out.println();
 		initializeBattlefieldAndUnits(lines);
-		// Collect dead Units here
-		Set<Unit> deadUnits = new HashSet<>();
 
-		int elfPower = Integer.MAX_VALUE;
-		Stats stats;
+		Predicate<Stats> testStatsIfElfWonAndZeroElvesDied = stats -> stats.winner() == Type.ELF && stats.elfNotDead();
 
-		boolean elvesWin = false;
-		while (elfNotDead(deadUnits) && elvesWin) {
+		int elfPowerMin = 4;
+		int elfPowerMax = Integer.MAX_VALUE - elfPowerMin;
 
-			Elf.AP = elfPower;
+		Stats statsMax;
+		Stats statsMin;
 
-			elfPower = elfPower / 2;
-
-			stats = battle();
+		while (true) {
+			Elf.AP = elfPowerMax;
+			statsMax = battle();
+			LOGGER.info(
+					"Max Stats ElfPower: " + elfPowerMax + ", " + statsMax + ", elfNotDead: " + statsMax.elfNotDead());
+			Elf.AP = elfPowerMin;
+			statsMin = battle();
+			LOGGER.info(
+					"Min Stats ElfPower: " + elfPowerMin + ", " + statsMin + ", elfNotDead: " + statsMin.elfNotDead());
+			if (testStatsIfElfWonAndZeroElvesDied.test(statsMin)) {
+				break;
+			} else {
+				if (testStatsIfElfWonAndZeroElvesDied.negate()
+					.test(statsMax)) {
+					elfPowerMin = elfPowerMax;
+					elfPowerMax = elfPowerMax * 2;
+				} else {
+					elfPowerMax = (elfPowerMax + elfPowerMin) / 2;
+					elfPowerMin++;
+				}
+			}
 		}
+		System.out.print(statsMin.outcome());
 	}
 
 	private Stats battle() {
@@ -193,17 +210,19 @@ public class Day15 implements Solution {
 				break;
 			LOGGER.info(print(rounds, remainingUnits));
 		}
-		Stats stats = new Stats(rounds, remainingUnits);
+		Stats stats = new Stats(rounds, remainingUnits, deadUnits);
 		return stats;
 	}
 
 	static class Stats {
 		final int rounds;
 		final Map<Coordinates, Unit> remainingUnits;
+		final Set<Unit> deadUnits;
 
-		Stats(int rounds, Map<Coordinates, Unit> remainingUnits) {
+		Stats(int rounds, Map<Coordinates, Unit> remainingUnits, Set<Unit> deadUnits) {
 			this.rounds = rounds;
 			this.remainingUnits = remainingUnits;
+			this.deadUnits = deadUnits;
 		}
 
 		int outcome() {
@@ -213,16 +232,23 @@ public class Day15 implements Solution {
 				.sum();
 		}
 
-		Optional<Type> winner() {
+		boolean elfNotDead() {
+			return deadUnits.stream()
+				.filter(u -> u.type() == Type.ELF)
+				.count() == 0;
+		}
+
+		Type winner() {
 			return remainingUnits.values()
 				.parallelStream()
 				.findAny()
-				.map(Unit::type);
+				.map(Unit::type)
+				.get();
 		}
 
 		@Override
 		public String toString() {
-			return "Stats [rounds=" + rounds + ", winner=" + winner().get() + ", outcome=" + outcome() + "]";
+			return "Stats [rounds=" + rounds + ", winner=" + winner() + ", outcome=" + outcome() + "]";
 		}
 	}
 
@@ -279,12 +305,6 @@ public class Day15 implements Solution {
 				.append("\n");
 		}
 		return s.toString();
-	}
-
-	private boolean elfNotDead(Set<Unit> deadUnits) {
-		return deadUnits.stream()
-			.filter(u -> u.type() == Type.ELF)
-			.count() == 0;
 	}
 
 	static interface Unit {
