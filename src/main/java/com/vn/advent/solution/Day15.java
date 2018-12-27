@@ -18,9 +18,11 @@ import java.util.stream.Stream;
 
 public class Day15 implements Solution {
 
-	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(Coordinates.compareLocations);
+	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(
+			Coordinates.compareLocations);
 
-	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(Coordinates.compareLocations);
+	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(
+			Coordinates.compareLocations);
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
@@ -114,10 +116,12 @@ public class Day15 implements Solution {
 					Queue<Coordinates> queue = new LinkedList<>();
 					queue.add(start);
 					Map<Coordinates, Coordinates> locationParentMap = new HashMap<>();
-					Set<Coordinates> visited = new HashSet<>();
+					// Set<Coordinates> visited = new HashSet<>();
+
+					// Below line instead of visited
+					locationParentMap.put(start, null);
 					while (!queue.isEmpty()) {
 						Coordinates curr = queue.poll();
-						visited.add(curr);
 						if (rangesOfAllEnemyUnits.contains(curr)) {
 							// Search has reached target, therefore -
 							// Find coordinates to move to, by backtracking
@@ -170,12 +174,12 @@ public class Day15 implements Solution {
 							// haven't been visited before, and add them to
 							// queue in reading order. Update location-parent
 							// map.
-							curr.range()
+							curr.rangeOrdered()
 								.stream()
 								.filter(BATTLEFIELD::containsKey)
+								.filter(c -> !locationParentMap.containsKey(c))
 								.filter(c -> !remainingUnits.containsKey(c))
-								.filter(c -> !visited.contains(c))
-								.sorted(Coordinates.compareLocations)
+								// .sorted(Coordinates.compareLocations)
 								.forEach(c -> {
 									locationParentMap.put(c, curr);
 									queue.offer(c);
@@ -194,7 +198,8 @@ public class Day15 implements Solution {
 	}
 
 	private Map<Coordinates, Unit> copyOfTreeMapOfAllInitialUnits() {
-		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(Coordinates.compareLocations);
+		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(
+				Coordinates.compareLocations);
 		ALL_INITIAL_UNITS.entrySet()
 			.stream()
 			.forEach(e -> remainingUnits.put(e.getKey(), e.getValue()
@@ -236,7 +241,8 @@ public class Day15 implements Solution {
 
 	static class Coordinates {
 
-		public static final Comparator<Coordinates> compareLocations = Comparator.comparing(Coordinates::getY)
+		public static final Comparator<Coordinates> compareLocations = Comparator
+			.comparing(Coordinates::getY)
 			.thenComparing(Coordinates::getX);
 
 		final int x, y;
@@ -277,6 +283,15 @@ public class Day15 implements Solution {
 			s.add(right());
 			s.add(down());
 			return s;
+		}
+
+		public List<Coordinates> rangeOrdered() {
+			List<Coordinates> l = new ArrayList<>();
+			l.add(up());
+			l.add(left());
+			l.add(right());
+			l.add(down());
+			return l;
 		}
 
 		@Override
@@ -513,7 +528,7 @@ public class Day15 implements Solution {
 
 	@Override
 	public String getInputFileName() {
-		return "input_15";
+		return "t8";
 	}
 
 }
