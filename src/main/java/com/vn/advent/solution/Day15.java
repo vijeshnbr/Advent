@@ -152,8 +152,14 @@ public class Day15 implements Solution {
 								move = locationParentMap.get(move);
 								distance++;
 							}
+							// Don't break from BFS yet even though search
+							// target is reached. Instead keep searching until
+							// there are no more ties with shortest distance
+							// (BFS gives shortest distance when all edges of
+							// graph are equal)
 							if (distance > maxDistance)
-								// Break out of BFS
+								// Break out of BFS - only when no more ties
+								// with shortest distance
 								break;
 							maxDistance = distance;
 							mapOfMoveToAndEnemyRange.put(move, curr);
