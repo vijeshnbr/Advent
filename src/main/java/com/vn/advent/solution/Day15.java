@@ -32,7 +32,6 @@ public class Day15 implements Solution {
 
 	@Override
 	public void partOne(Stream<String> lines) {
-		System.out.println();
 		initializeBattlefieldAndUnits(lines);
 		Stats stats = battle();
 		LOGGER.log(Level.INFO, "{0}", stats);
@@ -41,7 +40,6 @@ public class Day15 implements Solution {
 
 	@Override
 	public void partTwo(Stream<String> lines) {
-		System.out.println();
 		initializeBattlefieldAndUnits(lines);
 		int elfPowerMin = 4;
 		int elfPowerMax = Integer.MAX_VALUE - elfPowerMin;
