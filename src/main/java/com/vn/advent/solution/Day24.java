@@ -2,9 +2,15 @@ package com.vn.advent.solution;
 
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,30 +36,154 @@ public class Day24 implements Solution {
 	public void partOne(Stream<String> lines) {
 		String input = lines.collect(Collectors.joining("SEPARATOR"));
 		String[] armies = input.split("SEPARATORSEPARATOR");
-		List<Group> immuneSystems = Stream.of(armies[0].split("SEPARATOR"))
+		List<Group> inputImmuneSystems = Stream.of(armies[0].split("SEPARATOR"))
 			.map(l -> makeGroup(l, Army.IMMUNESYSTEM))
 			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
-		List<Group> infections = Stream.of(armies[1].split("SEPARATOR"))
-			.map(l -> makeGroup(l, Army.INFECTON))
+		List<Group> inputInfections = Stream.of(armies[1].split("SEPARATOR"))
+			.map(l -> makeGroup(l, Army.INFECTION))
 			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
+		System.out.print(battle(inputImmuneSystems, inputInfections).unitsInWinningArmy);
 	}
 
 	@Override
 	public void partTwo(Stream<String> lines) {
-		// TODO Auto-generated method stub
+		String input = lines.collect(Collectors.joining("SEPARATOR"));
+		String[] armies = input.split("SEPARATORSEPARATOR");
+		List<Group> inputImmuneSystems = Stream.of(armies[0].split("SEPARATOR"))
+			.map(l -> makeGroup(l, Army.IMMUNESYSTEM))
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+		List<Group> inputInfections = Stream.of(armies[1].split("SEPARATOR"))
+			.map(l -> makeGroup(l, Army.INFECTION))
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+		boolean experiment = false;
+		int minBoost = 33;
+		int maxBoost = 2000;
+		Outcome minOutcome = null;
+		Outcome maxOutcome = null;
+		while (experiment) {
+			ImmuneSystem.boost = minBoost;
+			minOutcome = battle(inputImmuneSystems, inputInfections);
+			System.out.println("Min Boost: " + minBoost + ", outcome: " + minOutcome);
+			ImmuneSystem.boost = maxBoost;
+			maxOutcome = battle(inputImmuneSystems, inputInfections);
+			System.out.println("Max Boost: " + maxBoost + ", outcome: " + maxOutcome);
 
+			if (minOutcome.winner == Army.IMMUNESYSTEM) {
+				break;
+			}
+
+			if (maxOutcome.winner == Army.IMMUNESYSTEM) {
+				maxBoost = (maxBoost + minBoost) / 2;
+				minBoost++;
+			} else if (maxOutcome.winner == Army.INFECTION) {
+				minBoost = maxBoost;
+				maxBoost *= 2;
+			}
+		}
+		if (minOutcome != null)
+			System.out.print(minOutcome.unitsInWinningArmy);
+	}
+
+	private Outcome battle(List<Group> immuneSystemsInput, List<Group> infectionsInput) {
+		// Make copy of input so we have original state of armies for records.
+		List<Group> immuneSystems = immuneSystemsInput.stream()
+			.map(Group::copyOf)
+			.collect(Collectors.toList());
+		List<Group> infections = infectionsInput.stream()
+			.map(Group::copyOf)
+			.collect(Collectors.toList());
+
+		Outcome outcome = null;
+
+		while (true) {
+			// Target selection phase - process will populate below treemap
+			// with
+			// keys(attackers) ordered by decreasing initiatives
+			Map<Group, Group> attackerDefender = new TreeMap<>(Group.compareInitiative.reversed());
+			attackerDefender.putAll(selectTargetsForAttackingArmyFromDefenders(immuneSystems, infections));
+			attackerDefender.putAll(selectTargetsForAttackingArmyFromDefenders(infections, immuneSystems));
+
+			// Attack phase
+			attackerDefender.entrySet()
+				.stream()
+				.forEach(e -> {
+					e.getKey()
+						.attack(e.getValue());
+				});
+
+			int sumOfUnitsInImmuneSystems = immuneSystems.stream()
+				.mapToInt(Group::units)
+				.sum();
+			int sumOfUnitsInInfections = infections.stream()
+				.mapToInt(Group::units)
+				.sum();
+
+			if (sumOfUnitsInImmuneSystems <= 0) {
+				outcome = new Outcome(sumOfUnitsInInfections, Army.INFECTION);
+				break;
+			} else if (sumOfUnitsInInfections <= 0) {
+				outcome = new Outcome(sumOfUnitsInImmuneSystems, Army.IMMUNESYSTEM);
+				break;
+			}
+		}
+		return outcome;
+	}
+
+	static class Outcome {
+		final int unitsInWinningArmy;
+		final Army winner;
+
+		Outcome(int unitsInWinningArmy, Army winner) {
+			this.unitsInWinningArmy = unitsInWinningArmy;
+			this.winner = winner;
+		}
+
+		@Override
+		public String toString() {
+			return "winner=" + winner;
+		}
+
+	}
+
+	private Map<Group, Group> selectTargetsForAttackingArmyFromDefenders(List<Group> attackers, List<Group> defenders) {
+
+		Map<Group, Group> attackerDefender = new HashMap<>();
+
+		// Sort army doing target selection by decreasing order of effective
+		// power and
+		// decreasing order of initiatives
+		attackers.sort(Group.compareEffectivePower.reversed()
+			.thenComparing(Group.compareInitiative.reversed()));
+		Set<Group> setOfTargetedTargets = new HashSet<>();
+
+		attackers.stream()
+			.filter(Group::containsUnits)
+			.forEach(attacker -> {
+				Function<Group, Integer> responseFactor = g -> g.responseTo(attacker.id().at);
+				Comparator<Group> compareGroupsByDamageResponseToGivenAttack = Comparator.comparing(responseFactor);
+				Optional<Group> groupChosenForAttack = defenders.stream()
+					.filter(Group::containsUnits)
+					.filter(g -> !setOfTargetedTargets.contains(g))
+					.filter(g -> g.responseTo(attacker.id().at) != 0)
+					.max(compareGroupsByDamageResponseToGivenAttack.thenComparing(Group.compareEffectivePower)
+						.thenComparing(Group.compareInitiative));
+				groupChosenForAttack.ifPresent(g -> {
+					setOfTargetedTargets.add(g);
+					attackerDefender.put(attacker, g);
+				});
+			});
+
+		return attackerDefender;
 	}
 
 	static interface Group {
 
-		Comparator<Group> compareEffectivePowerReversed = Comparator.comparing(Group::effectivePower)
-			.reversed();
-		Comparator<Group> compareInitiativeReversed = Comparator.comparing(Group::initiative)
-			.reversed();
-
-		Comparator<Group> compareGroups = compareEffectivePowerReversed.thenComparing(compareInitiativeReversed);
+		Comparator<Group> compareEffectivePower = Comparator.comparing(Group::effectivePower);
+		Comparator<Group> compareInitiative = Comparator.comparing(Group::initiative);
 
 		Army type();
 
@@ -64,25 +194,48 @@ public class Day24 implements Solution {
 		void defend(Group enemy);
 
 		default void attack(Group enemy) {
+			LOGGER.info(this + "ATTACKING " + enemy);
 			enemy.defend(this);
 		}
 
 		default int effectivePower() {
-			return units() * id().ad;
+			return units() * ad();
 		}
 
 		default int initiative() {
 			return id().initiative;
 		}
 
+		default int responseTo(AttackType at) {
+			return id().reaction.getOrDefault(at, Response.DEFAULT)
+				.factor();
+		}
+
+		default boolean containsUnits() {
+			return units() > 0;
+		}
+
+		default int ad() {
+			return id().ad;
+		}
+
+		static Group copyOf(Group toBeCopied) {
+			Group copy = null;
+			if (toBeCopied.type() == Army.IMMUNESYSTEM) {
+				copy = new ImmuneSystem(toBeCopied.units(), toBeCopied.id());
+			} else if (toBeCopied.type() == Army.INFECTION) {
+				copy = new Infection(toBeCopied.units(), toBeCopied.id());
+			}
+			return copy;
+		}
+
 		static class Id {
 			final int hp, ad, initiative;
 			final AttackType at;
-			final Map<AttackType, ReactionToAttackType> reaction = new EnumMap<>(AttackType.class);
+			final Map<AttackType, Response> reaction = new EnumMap<>(AttackType.class);
 			final Army type;
 
-			Id(int hp, int ad, int initiative, AttackType at, Map<AttackType, ReactionToAttackType> reaction,
-					Army type) {
+			Id(int hp, int ad, int initiative, AttackType at, Map<AttackType, Response> reaction, Army type) {
 				this.hp = hp;
 				this.ad = ad;
 				this.initiative = initiative;
@@ -132,8 +285,10 @@ public class Day24 implements Solution {
 	}
 
 	static class ImmuneSystem implements Group {
-		final int units;
+		int units;
 		final Id id;
+
+		public static int boost = 0;
 
 		ImmuneSystem(int units, Id id) {
 			this.units = units;
@@ -162,14 +317,20 @@ public class Day24 implements Solution {
 
 		@Override
 		public void defend(Group enemy) {
-			// TODO Auto-generated method stub
+			int factor = responseTo(enemy.id().at);
+			units = units - ((enemy.effectivePower() * factor) / id.hp);
+			units = (units < 0) ? 0 : units;
+		}
 
+		@Override
+		public int ad() {
+			return id().ad + boost;
 		}
 
 	}
 
 	static class Infection implements Group {
-		final int units;
+		int units;
 		final Id id;
 
 		Infection(int units, Id id) {
@@ -179,7 +340,7 @@ public class Day24 implements Solution {
 
 		@Override
 		public Army type() {
-			return Army.INFECTON;
+			return Army.INFECTION;
 		}
 
 		@Override
@@ -199,8 +360,9 @@ public class Day24 implements Solution {
 
 		@Override
 		public void defend(Group enemy) {
-			// TODO Auto-generated method stub
-
+			int factor = responseTo(enemy.id().at);
+			units = units - ((enemy.effectivePower() * factor) / id.hp);
+			units = (units < 0) ? 0 : units;
 		}
 
 	}
@@ -209,12 +371,21 @@ public class Day24 implements Solution {
 		FIRE, COLD, RADIATION, SLASHING, BLUDGEONING
 	}
 
-	static enum ReactionToAttackType {
-		IMMUNE, WEAK, DEFAULT
+	static enum Response {
+		IMMUNE(0), WEAK(2), DEFAULT(1);
+		private int factor;
+
+		Response(int factor) {
+			this.factor = factor;
+		}
+
+		int factor() {
+			return this.factor;
+		}
 	}
 
 	static enum Army {
-		IMMUNESYSTEM, INFECTON
+		IMMUNESYSTEM, INFECTION
 	}
 
 	@Override
@@ -238,7 +409,7 @@ public class Day24 implements Solution {
 
 				int units = Integer.parseInt(g1);
 				int hp = Integer.parseInt(g2);
-				Map<AttackType, ReactionToAttackType> reactionMap = new EnumMap<>(AttackType.class);
+				Map<AttackType, Response> reactionMap = new EnumMap<>(AttackType.class);
 				if (g3 != null) {
 					m = REACTION.matcher(g4);
 					while (m.find()) {
@@ -249,7 +420,7 @@ public class Day24 implements Solution {
 						while (m2.find()) {
 							String at = m2.group()
 								.toUpperCase();
-							reactionMap.put(AttackType.valueOf(at), ReactionToAttackType.valueOf(reaction));
+							reactionMap.put(AttackType.valueOf(at), Response.valueOf(reaction));
 						}
 					}
 				}
@@ -260,7 +431,7 @@ public class Day24 implements Solution {
 				Group.Id id = new Group.Id(hp, ad, initiative, at, reactionMap, type);
 				if (type == Army.IMMUNESYSTEM)
 					group = new ImmuneSystem(units, id);
-				else if (type == Army.INFECTON)
+				else if (type == Army.INFECTION)
 					group = new Infection(units, id);
 			}
 		}
