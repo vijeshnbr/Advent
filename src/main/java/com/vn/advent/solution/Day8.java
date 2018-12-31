@@ -13,21 +13,21 @@ public class Day8 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day8();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		Node ROOT = initialize(lines);
 		LOGGER.log(Level.INFO, "TREE : {0}", ROOT);
-		System.out.print(sumOfMetadatas(ROOT));
+		return String.valueOf(sumOfMetadatas(ROOT));
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		Node ROOT = initialize(lines);
 		LOGGER.log(Level.INFO, "TREE : {0}", ROOT);
-		System.out.print(ROOT.getValue());
+		return String.valueOf(ROOT.getValue());
 	}
 
 	private Node initialize(Stream<String> lines) {
@@ -86,7 +86,8 @@ public class Day8 implements Solution {
 			} else {
 				value = metadatas.stream()
 					.mapToInt(Metadata::getValue)
-					.filter(metadata -> metadata > 0 && metadata <= header.noOfChildren)
+					.filter(metadata -> metadata > 0
+							&& metadata <= header.noOfChildren)
 					.map(i -> i - 1)
 					.mapToObj(children::get)
 					.mapToInt(Node::getValue)
@@ -150,8 +151,8 @@ public class Day8 implements Solution {
 
 		@Override
 		public String toString() {
-			return "Node [id=" + id + ", header=" + header + ",\nchildren=" + children + ",\n metadatas=" + metadatas
-					+ "]";
+			return "Node [id=" + id + ", header=" + header + ",\nchildren="
+					+ children + ",\n metadatas=" + metadatas + "]";
 		}
 	}
 
@@ -166,7 +167,8 @@ public class Day8 implements Solution {
 
 		@Override
 		public String toString() {
-			return "[noOfChildren=" + noOfChildren + ", noOfMetadata=" + noOfMetadata + "]";
+			return "[noOfChildren=" + noOfChildren + ", noOfMetadata="
+					+ noOfMetadata + "]";
 		}
 	}
 

@@ -21,11 +21,11 @@ public class Day11 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day11();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		List<Coordinates> listOfCoordinatesThatFormSquareGrids = new ArrayList<>();
 		int size = 3;
 		int xyMax = 300 - size + 1;
@@ -36,10 +36,11 @@ public class Day11 implements Solution {
 			}
 		}
 
-		listOfCoordinatesThatFormSquareGrids.stream()
+		return listOfCoordinatesThatFormSquareGrids.stream()
 			.map(Coordinates::calcPowerLevel)
 			.max((c1, c2) -> Integer.compare(c1.totalPower, c2.totalPower))
-			.ifPresent(System.out::print);
+			.get()
+			.toString();
 	}
 
 	static class Holder {
@@ -50,7 +51,7 @@ public class Day11 implements Solution {
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		List<Coordinates> listOfCoordinatesThatFormSquareGrids = new ArrayList<>();
 		for (int size = 1; size <= 300; size++) {
 			int xyMax = 300 - size + 1;
@@ -61,13 +62,13 @@ public class Day11 implements Solution {
 				}
 			}
 		}
-
 		Holder max = new Holder();
 		listOfCoordinatesThatFormSquareGrids.stream()
 			.map(Coordinates::calcPowerLevel)
 			.filter(c -> c.totalPower > max.c.totalPower)
-			.peek(System.out::println)
+			// .peek(System.out::println)
 			.forEach(c -> max.c = c);
+		return max.c.toString();
 	}
 
 	static class Coordinates {

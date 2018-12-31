@@ -116,40 +116,38 @@ public class Day16 implements Solution {
 		return res;
 	};
 
-	private static final Eval[] OPS = new Eval[] { addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir,
-			gtri, gtrr, eqir, eqri, eqrr };
+	private static final Eval[] OPS = new Eval[]{addr, addi, mulr, muli, banr,
+			bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr};
 
 	private static final Pattern REGISTER = Pattern.compile("\\[(.*)\\]");
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day16();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		String[] parts = lines.collect(Collectors.joining("SEPARATOR"))
 			.split("(SEPARATOR){4}");
 		String inputPartOne = parts[0];
-		System.out.println();
 		String[] samplesInput = inputPartOne.split("(SEPARATOR){2}");
 		List<Sample> samples = Stream.of(samplesInput)
 			.map(this::mapToSample)
 			.collect(Collectors.toList());
 
-		System.out.print(samples.stream()
+		return String.valueOf(samples.stream()
 			.filter(this::behavesLike3OrMoreOpCodes)
 			.count());
 
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		String[] parts = lines.collect(Collectors.joining("SEPARATOR"))
 			.split("(SEPARATOR){4}");
 		String inputPartOne = parts[0];
-		System.out.println();
 		String[] samplesInput = inputPartOne.split("(SEPARATOR){2}");
 		List<Sample> samples = Stream.of(samplesInput)
 			.map(this::mapToSample)
@@ -168,12 +166,14 @@ public class Day16 implements Solution {
 			Map<Integer, Eval> opCodesFound = allSamplesGrouped.values()
 				.stream()
 				.flatMap(List::stream)
-				.map(s -> findOpCodeAndOpThatBehavesLikeExactlyOneOperation(s, knownMapOfOpCodeAndOperation.values()))
+				.map(s -> findOpCodeAndOpThatBehavesLikeExactlyOneOperation(s,
+						knownMapOfOpCodeAndOperation.values()))
 				.filter(m -> !m.isEmpty())
 				.distinct()
 				.flatMap(m -> m.entrySet()
 					.stream())
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+				.collect(Collectors.toMap(Map.Entry::getKey,
+						Map.Entry::getValue));
 
 			// remove entry for the opcodes that have already been found for
 			// performance
@@ -200,12 +200,11 @@ public class Day16 implements Solution {
 				.eval(initial, i.a, i.b, i.c);
 		}
 
-		System.out.print(initial.registers[0]);
-
+		return String.valueOf(initial.registers[0]);
 	}
 
-	Map<Integer, Eval> findOpCodeAndOpThatBehavesLikeExactlyOneOperation(Sample s,
-			Collection<Eval> setOfAlreadyFoundOpName) {
+	Map<Integer, Eval> findOpCodeAndOpThatBehavesLikeExactlyOneOperation(
+			Sample s, Collection<Eval> setOfAlreadyFoundOpName) {
 		int matchCounter = 0;
 		int opsCounter = 0;
 		Integer lastMatchedOp = null;
@@ -337,8 +336,8 @@ public class Day16 implements Solution {
 
 		@Override
 		public String toString() {
-			return "[" + String.valueOf(opCode) + " " + String.valueOf(a) + " " + String.valueOf(b) + " "
-					+ String.valueOf(c) + "]";
+			return "[" + String.valueOf(opCode) + " " + String.valueOf(a) + " "
+					+ String.valueOf(b) + " " + String.valueOf(c) + "]";
 		}
 
 	}

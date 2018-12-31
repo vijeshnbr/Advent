@@ -18,22 +18,24 @@ import java.util.stream.Stream;
 
 public class Day23 implements Solution {
 
-	private static final Pattern PATTERN = Pattern.compile("\\<(.*)\\>, r=(\\d*)");
+	private static final Pattern PATTERN = Pattern
+		.compile("\\<(.*)\\>, r=(\\d*)");
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day23();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		List<Nanobot> nanobots = lines.map(line -> {
 			Matcher m = PATTERN.matcher(line);
 			boolean find = m.find();
 			Nanobot n = null;
 			if (find) {
-				n = new Nanobot(new Coordinates(m.group(1)), Integer.parseInt(m.group(2)));
+				n = new Nanobot(new Coordinates(m.group(1)),
+						Integer.parseInt(m.group(2)));
 			}
 			return n;
 		})
@@ -43,21 +45,22 @@ public class Day23 implements Solution {
 			.max(Comparator.comparing(Nanobot::getRadius))
 			.get();
 
-		System.out.println(nanobots.stream()
+		return String.valueOf(nanobots.stream()
 			.filter(n -> n.inRangeOf(max))
 			.count());
 
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 
 		final List<Nanobot> nanobots = lines.map(line -> {
 			Matcher m = PATTERN.matcher(line);
 			boolean find = m.find();
 			Nanobot n = null;
 			if (find) {
-				n = new Nanobot(new Coordinates(m.group(1)), Integer.parseInt(m.group(2)));
+				n = new Nanobot(new Coordinates(m.group(1)),
+						Integer.parseInt(m.group(2)));
 			}
 			return n;
 		})
@@ -84,8 +87,8 @@ public class Day23 implements Solution {
 		long currentRadius = Math.max(deltaX, Math.max(deltaY, deltaZ));
 
 		// immutable set - for fun :-)
-		Set<Nanobot> currentNanobots = new HashSet<>(
-				Arrays.asList(Nanobot.newInstance(Coordinates.ZERO, currentRadius)));
+		Set<Nanobot> currentNanobots = new HashSet<>(Arrays
+			.asList(Nanobot.newInstance(Coordinates.ZERO, currentRadius)));
 		currentNanobots = Collections.unmodifiableSet(currentNanobots);
 
 		while (currentRadius > 0) {
@@ -95,7 +98,8 @@ public class Day23 implements Solution {
 				.flatMap(nb -> nb.c.neighbors(cr)
 					.stream()
 					.map(c -> new Nanobot(c, cr)))
-				.map(nb -> new Pair<Nanobot, Long>(nb, nb.countOfIntersectingBots(nanobots)))
+				.map(nb -> new Pair<Nanobot, Long>(nb,
+						nb.countOfIntersectingBots(nanobots)))
 				.collect(Collectors.toList());
 
 			Optional<Long> max = nanobotAndCount.stream()
@@ -109,7 +113,7 @@ public class Day23 implements Solution {
 				.map(t -> t)
 				.collect(Collectors.toSet());
 		}
-		System.out.print(currentNanobots.stream()
+		return String.valueOf(currentNanobots.stream()
 			.map(nb -> nb.distanceToCoordinate(Coordinates.ZERO))
 			.min(Long::compare)
 			.get());
@@ -165,12 +169,14 @@ public class Day23 implements Solution {
 		}
 
 		boolean coordinatesInRangeOf(Coordinates loc) {
-			long distance = Math.abs(loc.x - c.x) + Math.abs(loc.y - c.y) + Math.abs(loc.z - c.z);
+			long distance = Math.abs(loc.x - c.x) + Math.abs(loc.y - c.y)
+					+ Math.abs(loc.z - c.z);
 			return distance <= radius;
 		}
 
 		long distanceToCoordinate(Coordinates loc) {
-			return Math.abs(loc.x - c.x) + Math.abs(loc.y - c.y) + Math.abs(loc.z - c.z);
+			return Math.abs(loc.x - c.x) + Math.abs(loc.y - c.y)
+					+ Math.abs(loc.z - c.z);
 		}
 
 		boolean intersects(Nanobot other) {
@@ -203,7 +209,8 @@ public class Day23 implements Solution {
 
 		@Override
 		public String toString() {
-			return "c=" + c + ", radius=" + radius + ", distance=" + distanceToCoordinate(Coordinates.ZERO);
+			return "c=" + c + ", radius=" + radius + ", distance="
+					+ distanceToCoordinate(Coordinates.ZERO);
 		}
 
 	}
@@ -246,7 +253,8 @@ public class Day23 implements Solution {
 						.flatMap(yd -> {
 							return LongStream.rangeClosed(-1, 1)
 								.mapToObj(zd -> {
-									return new Coordinates(x + xd * delta, y + yd * delta, z + zd * delta);
+									return new Coordinates(x + xd * delta,
+											y + yd * delta, z + zd * delta);
 								});
 						});
 				})

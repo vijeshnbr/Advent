@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,12 +17,13 @@ public class Day6 implements Solution {
 	public static final int RANGE = 10000;
 
 	public static void main(String[] args) {
+		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day6();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		Set<Coordinates> setOfCoordinates = lines.map(Coordinates::new)
 			.collect(Collectors.toSet());
 
@@ -64,16 +66,16 @@ public class Day6 implements Solution {
 			.filter(Square::isNotTied)
 			.collect(Collectors.groupingBy(Square::getClosestLocation));
 
-		locationAndArea.values()
+		return String.valueOf(locationAndArea.values()
 			.stream()
 			.map(List::size)
 			.max(Integer::compare)
-			.ifPresent(System.out::print);
+			.get());
 
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		Set<Coordinates> setOfCoordinates = lines.map(Coordinates::new)
 			.collect(Collectors.toSet());
 
@@ -115,7 +117,7 @@ public class Day6 implements Solution {
 			.flatMap(rowArr -> Arrays.stream(rowArr))
 			.filter(square -> square.sumOfDistancesToAllLocations.isPresent())
 			.count();
-		System.out.print(regionSize);
+		return String.valueOf(regionSize);
 	}
 
 	private Square getSumOfDistancesToAllLocations(Coordinates positionInGrid,

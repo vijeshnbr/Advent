@@ -1,5 +1,7 @@
 package com.vn.advent;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -7,7 +9,19 @@ import java.util.logging.Level;
 
 import com.vn.advent.solution.Day1;
 import com.vn.advent.solution.Day10;
+import com.vn.advent.solution.Day12;
+import com.vn.advent.solution.Day13;
+import com.vn.advent.solution.Day14;
+import com.vn.advent.solution.Day15;
+import com.vn.advent.solution.Day16;
+import com.vn.advent.solution.Day17;
+import com.vn.advent.solution.Day18;
 import com.vn.advent.solution.Day2;
+import com.vn.advent.solution.Day20;
+import com.vn.advent.solution.Day22;
+import com.vn.advent.solution.Day23;
+import com.vn.advent.solution.Day24;
+import com.vn.advent.solution.Day25;
 import com.vn.advent.solution.Day3;
 import com.vn.advent.solution.Day4;
 import com.vn.advent.solution.Day5;
@@ -34,10 +48,30 @@ public class Advent {
 		solutions.add(Day8::new);
 		solutions.add(Day9::new);
 		solutions.add(Day10::new);
+		solutions.add(Day12::new);
+		solutions.add(Day13::new);
+		solutions.add(Day14::new);
+		solutions.add(Day15::new);
+		solutions.add(Day16::new);
+		solutions.add(Day17::new);
+		solutions.add(Day18::new);
+		solutions.add(Day20::new);
+		solutions.add(Day22::new);
+		solutions.add(Day23::new);
+		solutions.add(Day24::new);
+		solutions.add(Day25::new);
 
+		System.out.println("RUNNING ALL SOLUTIONS..");
+		Instant start = Instant.now();
 		solutions.stream()
+			.parallel()
 			.map(Supplier::get)
-			.forEach(Solution::run);
+			.map(Solution::run)
+			.forEach(System.out::println);
+		Instant end = Instant.now();
+		System.out
+			.println("Total execution time: " + Duration.between(start, end)
+				.toMillis());
 	}
 
 }

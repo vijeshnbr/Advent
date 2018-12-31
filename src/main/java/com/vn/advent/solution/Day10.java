@@ -18,15 +18,16 @@ public class Day10 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day10();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		Set<Point> allPoints = lines.map(this::extractPoint)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toSet());
+		String result = null;
 		while (true) {
 			int minX = allPoints.stream()
 				.map(point -> point.p.x)
@@ -67,8 +68,7 @@ public class Day10 implements Solution {
 						}
 					}
 				}
-				System.out.println();
-				print2DArray(grid);
+				result = print2DArray(grid);
 				break;
 			}
 
@@ -81,36 +81,11 @@ public class Day10 implements Solution {
 				})
 				.collect(Collectors.toSet());
 		}
-
-	}
-
-	private void print2DArray(Object[][] arr) {
-		for (int row = 0; row < arr.length; row++) {
-			System.out.println(Arrays.stream(arr[row])
-				.map(Object::toString)
-				.collect(Collectors.joining(" ")));
-		}
-	}
-
-	private Optional<Point> extractPoint(String line) {
-		Optional<Point> point = Optional.empty();
-		Matcher m = PATTERN.matcher(line);
-		if (m.find()) {
-			Velocity v = new Velocity(Integer.parseInt(m.group(3)
-				.trim()),
-					Integer.parseInt(m.group(4)
-						.trim()));
-			Position p = new Position(Integer.parseInt(m.group(1)
-				.trim()),
-					Integer.parseInt(m.group(2)
-						.trim()));
-			point = Optional.of(new Point(p, v));
-		}
-		return point;
+		return result;
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		Set<Point> allPoints = lines.map(this::extractPoint)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -138,7 +113,7 @@ public class Day10 implements Solution {
 			int colSize = maxX - minX + 1;
 
 			if (rowSize < 20 && colSize < 100) {
-				System.out.println(String.valueOf(seconds));
+				// Time when message converged - so break
 				break;
 			}
 
@@ -152,8 +127,37 @@ public class Day10 implements Solution {
 				.collect(Collectors.toSet());
 			seconds++;
 		}
+		return String.valueOf(seconds);
 	}
 
+	private String print2DArray(Object[][] arr) {
+		StringBuilder s = new StringBuilder();
+		s.append("\n");
+		for (int row = 0; row < arr.length; row++) {
+			s.append(Arrays.stream(arr[row])
+				.map(Object::toString)
+				.collect(Collectors.joining(" ")));
+			s.append("\n");
+		}
+		return s.toString();
+	}
+
+	private Optional<Point> extractPoint(String line) {
+		Optional<Point> point = Optional.empty();
+		Matcher m = PATTERN.matcher(line);
+		if (m.find()) {
+			Velocity v = new Velocity(Integer.parseInt(m.group(3)
+				.trim()), Integer.parseInt(
+						m.group(4)
+							.trim()));
+			Position p = new Position(Integer.parseInt(m.group(1)
+				.trim()), Integer.parseInt(
+						m.group(2)
+							.trim()));
+			point = Optional.of(new Point(p, v));
+		}
+		return point;
+	}
 	static class Point {
 		Position p;
 		final Velocity v;

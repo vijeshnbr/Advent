@@ -135,11 +135,11 @@ public class Day19 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day19();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		List<String> allInput = lines.collect(Collectors.toList());
 		String ipString = allInput.remove(0);
 		int ipIndex = Integer.parseInt(ipString.split(" ")[1]);
@@ -166,11 +166,11 @@ public class Day19 implements Solution {
 			initial = afterRun;
 		}
 
-		System.out.print(initial.registers[0]);
+		return String.valueOf(initial.registers[0]);
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		List<String> allInput = lines.collect(Collectors.toList());
 		String ipString = allInput.remove(0);
 		int ipIndex = Integer.parseInt(ipString.split(" ")[1]);
@@ -212,63 +212,95 @@ public class Day19 implements Solution {
 						System.out.print("GOTO: " + (toRun.a + 1));
 				} else if (toRun.op.equals("setr")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = " + labels[toRun.a]);
+						System.out
+							.print(labels[toRun.c] + " = " + labels[toRun.a]);
 					else
-						System.out.print("GOTO: " + (initial.registers[toRun.a] + 1));
+						System.out
+							.print("GOTO: " + (initial.registers[toRun.a] + 1));
 				} else if (toRun.op.equals("addi")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = " + labels[toRun.a] + " + " + toRun.b);
+						System.out.print(labels[toRun.c] + " = "
+								+ labels[toRun.a] + " + " + toRun.b);
 					else
-						System.out.print("GOTO: " + (initial.registers[toRun.a] + toRun.b + 1));
+						System.out.print("GOTO: "
+								+ (initial.registers[toRun.a] + toRun.b + 1));
 				} else if (toRun.op.equals("addr")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = " + labels[toRun.a] + " + " + labels[toRun.b]);
+						System.out.print(labels[toRun.c] + " = "
+								+ labels[toRun.a] + " + " + labels[toRun.b]);
 					else
-						System.out.print("GOTO: " + (initial.registers[toRun.a] + initial.registers[toRun.b] + 1));
+						System.out.print("GOTO: " + (initial.registers[toRun.a]
+								+ initial.registers[toRun.b] + 1));
 				} else if (toRun.op.equals("muli")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = " + labels[toRun.a] + " * " + toRun.b);
+						System.out.print(labels[toRun.c] + " = "
+								+ labels[toRun.a] + " * " + toRun.b);
 					else
-						System.out.print("GOTO: " + (initial.registers[toRun.a] * toRun.b + 1));
+						System.out.print("GOTO: "
+								+ (initial.registers[toRun.a] * toRun.b + 1));
 				} else if (toRun.op.equals("mulr")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = " + labels[toRun.a] + " * " + labels[toRun.b]);
+						System.out.print(labels[toRun.c] + " = "
+								+ labels[toRun.a] + " * " + labels[toRun.b]);
 					else
-						System.out.print("GOTO: " + (initial.registers[toRun.a] * initial.registers[toRun.b] + 1));
+						System.out.print("GOTO: " + (initial.registers[toRun.a]
+								* initial.registers[toRun.b] + 1));
 				} else if (toRun.op.equals("gtrr")) {
 					if (labels[toRun.c] != '#')
 						System.out
-							.print(labels[toRun.c] + " = (" + labels[toRun.a] + ">" + labels[toRun.b] + ") ? 1:0");
+							.print(labels[toRun.c] + " = (" + labels[toRun.a]
+									+ ">" + labels[toRun.b] + ") ? 1:0");
 					else
-						System.out
-							.print("GOTO: " + ((initial.registers[toRun.a] > initial.registers[toRun.b]) ? 1 : 0));
+						System.out.print("GOTO: "
+								+ ((initial.registers[toRun.a] > initial.registers[toRun.b])
+										? 1
+										: 0));
 				} else if (toRun.op.equals("gtri")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = (" + labels[toRun.a] + ">" + toRun.b + ") ? 1:0");
+						System.out.print(labels[toRun.c] + " = ("
+								+ labels[toRun.a] + ">" + toRun.b + ") ? 1:0");
 					else
-						System.out.print("GOTO: " + ((initial.registers[toRun.a] > toRun.b) ? 1 : 0));
+						System.out.print("GOTO: "
+								+ ((initial.registers[toRun.a] > toRun.b)
+										? 1
+										: 0));
 				} else if (toRun.op.equals("gtir")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = (" + toRun.a + ">" + labels[toRun.b] + ") ? 1:0");
+						System.out.print(labels[toRun.c] + " = (" + toRun.a
+								+ ">" + labels[toRun.b] + ") ? 1:0");
 					else
-						System.out.print("GOTO: " + ((toRun.a > initial.registers[toRun.b]) ? 1 : 0));
+						System.out.print("GOTO: "
+								+ ((toRun.a > initial.registers[toRun.b])
+										? 1
+										: 0));
 				} else if (toRun.op.equals("eqrr")) {
 					if (labels[toRun.c] != '#')
 						System.out
-							.print(labels[toRun.c] + " = (" + labels[toRun.a] + "==" + labels[toRun.b] + ") ? 1:0");
+							.print(labels[toRun.c] + " = (" + labels[toRun.a]
+									+ "==" + labels[toRun.b] + ") ? 1:0");
 					else
-						System.out
-							.print("GOTO: " + ((initial.registers[toRun.a] == initial.registers[toRun.b]) ? 1 : 0));
+						System.out.print("GOTO: "
+								+ ((initial.registers[toRun.a] == initial.registers[toRun.b])
+										? 1
+										: 0));
 				} else if (toRun.op.equals("eqri")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = (" + labels[toRun.a] + "==" + toRun.b + ") ? 1:0");
+						System.out.print(labels[toRun.c] + " = ("
+								+ labels[toRun.a] + "==" + toRun.b + ") ? 1:0");
 					else
-						System.out.print("GOTO: " + ((initial.registers[toRun.a] == toRun.b) ? 1 : 0));
+						System.out.print("GOTO: "
+								+ ((initial.registers[toRun.a] == toRun.b)
+										? 1
+										: 0));
 				} else if (toRun.op.equals("eqir")) {
 					if (labels[toRun.c] != '#')
-						System.out.print(labels[toRun.c] + " = (" + toRun.a + "==" + labels[toRun.b] + ") ? 1:0");
+						System.out.print(labels[toRun.c] + " = (" + toRun.a
+								+ "==" + labels[toRun.b] + ") ? 1:0");
 					else
-						System.out.print("GOTO: " + ((toRun.a == initial.registers[toRun.b]) ? 1 : 0));
+						System.out.print("GOTO: "
+								+ ((toRun.a == initial.registers[toRun.b])
+										? 1
+										: 0));
 				}
 				System.out.print(" ---> ");
 				System.out.print(afterRun);
@@ -281,7 +313,7 @@ public class Day19 implements Solution {
 			ic++;
 		}
 
-		System.out.print(initial.registers[0]);
+		return String.valueOf(initial.registers[0]);
 	}
 
 	static class Registers {
@@ -348,7 +380,8 @@ public class Day19 implements Solution {
 
 		@Override
 		public String toString() {
-			return "[" + op + " " + String.valueOf(a) + " " + String.valueOf(b) + " " + String.valueOf(c) + "]";
+			return "[" + op + " " + String.valueOf(a) + " " + String.valueOf(b)
+					+ " " + String.valueOf(c) + "]";
 		}
 
 	}

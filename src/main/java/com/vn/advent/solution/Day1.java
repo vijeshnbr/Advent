@@ -16,17 +16,17 @@ public class Day1 implements Solution {
 
 	public static void main(String[] args) {
 		Solution solution = new Day1();
-		solution.run();
-		FileUtil.runCodeForLinesInFile(solution.getInputFileName(),
-				Day1::partTwo_Alt);
+		System.out.println(solution.run());
+		System.out.println(FileUtil.runCodeForLinesInFile(
+				solution.getInputFileName(), Day1::partTwo_Alt));
 	}
 
-	public void partOne(Stream<String> lines) {
-		System.out.print(lines.mapToLong(Long::parseLong)
+	public String partOne(Stream<String> lines) {
+		return String.valueOf(lines.mapToLong(Long::parseLong)
 			.sum());
 	}
 
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		final long INIT_FREQ = 0;
 		final Set<Long> frequencies = new HashSet<>();
 		frequencies.add(INIT_FREQ);
@@ -35,6 +35,7 @@ public class Day1 implements Solution {
 			.boxed()
 			.collect(Collectors.toList());
 		long lastFrequency = INIT_FREQ;
+		String result = null;
 		while (!frequencyFoundTwice.get()) {
 			lastFrequency = changeList.stream()
 				.reduce(lastFrequency, (frequency, change) -> {
@@ -52,11 +53,12 @@ public class Day1 implements Solution {
 		}
 
 		if (frequencyFoundTwice.get()) {
-			System.out.print(lastFrequency);
+			result = String.valueOf(lastFrequency);
 		}
+		return result;
 	}
 
-	private static void partTwo_Alt(Stream<String> lines) {
+	private static String partTwo_Alt(Stream<String> lines) {
 		List<Long> changeList = lines.mapToLong(Long::parseLong)
 			.boxed()
 			.collect(Collectors.toList());
@@ -65,11 +67,11 @@ public class Day1 implements Solution {
 		frequencies.add(INIT_FREQ);
 		FrequenciesStack frequenciesStack = new FrequenciesStack(INIT_FREQ,
 				frequencies);
-		applyChangeListToFrequencies(Collections.unmodifiableList(changeList),
-				frequenciesStack);
+		return applyChangeListToFrequencies(
+				Collections.unmodifiableList(changeList), frequenciesStack);
 	}
 
-	private static void applyChangeListToFrequencies(
+	private static String applyChangeListToFrequencies(
 			final List<Long> changeList, FrequenciesStack frequenciesStack) {
 
 		Optional<Long> firstDuplicateFrequency = changeList.stream()
@@ -79,10 +81,10 @@ public class Day1 implements Solution {
 			.findFirst();
 
 		if (firstDuplicateFrequency.isPresent()) {
-			System.out.print(String.format("Alternate solution to PART 2: %d",
-					firstDuplicateFrequency.get()));
+			return String.format("Alternate solution to PART 2: %d",
+					firstDuplicateFrequency.get());
 		} else {
-			applyChangeListToFrequencies(changeList, frequenciesStack);
+			return applyChangeListToFrequencies(changeList, frequenciesStack);
 		}
 
 	}

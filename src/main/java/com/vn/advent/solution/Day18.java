@@ -17,11 +17,11 @@ public class Day18 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day18();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		List<String> allLines = lines.collect(Collectors.toList());
 		int y = 0;
 		for (String line : allLines) {
@@ -33,13 +33,13 @@ public class Day18 implements Solution {
 			}
 			y++;
 		}
-
 		for (int i = 1; i <= 10; i++) {
 			Map<Coordinates, Acre> changedLandscape = Acre.acres.values()
 				.stream()
 				.parallel()
 				.map(Acre::getNewValue)
-				.collect(Collectors.toMap(Acre::getCoordinates, Function.identity()));
+				.collect(Collectors.toMap(Acre::getCoordinates,
+						Function.identity()));
 			Acre.acres.clear();
 			Acre.acres.putAll(changedLandscape);
 		}
@@ -54,17 +54,18 @@ public class Day18 implements Solution {
 			.map(Acre::type)
 			.filter(Type.TREES::equals)
 			.count();
-		System.out.print(countLumberYard * countAcresWithTrees);
+		return String.valueOf(countLumberYard * countAcresWithTrees);
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
-
+	public String partTwo(Stream<String> lines) {
+		return "A pattern problem for large input - so solved manually/mathematically";
 	}
 
 	static interface Acre {
-		public static final Map<Coordinates, Acre> acres = new TreeMap<>(Comparator.comparing(Coordinates::getY)
-			.thenComparing(Coordinates::getX));
+		public static final Map<Coordinates, Acre> acres = new TreeMap<>(
+				Comparator.comparing(Coordinates::getY)
+					.thenComparing(Coordinates::getX));
 
 		Type type();
 
@@ -105,7 +106,8 @@ public class Day18 implements Solution {
 				.count();
 			boolean isSurroundedBy1orMoreLumberYardAnd1OrMoreAcresWithTrees = countLumberYard >= 1
 					&& countAcresWithTrees >= 1;
-			return isLumberYard && !isSurroundedBy1orMoreLumberYardAnd1OrMoreAcresWithTrees;
+			return isLumberYard
+					&& !isSurroundedBy1orMoreLumberYardAnd1OrMoreAcresWithTrees;
 		};
 
 		default Acre getNewValue() {
@@ -115,7 +117,8 @@ public class Day18 implements Solution {
 				a = new Trees(c);
 			} else if (isTreesAndSurroundedBy3orMoreLumberYards.test(a)) {
 				a = new LumberYard(c);
-			} else if (isLumberYardAndNotSurroundedBy1orMoreLumberYardAnd1OrMoreAcresWithTrees.test(a)) {
+			} else if (isLumberYardAndNotSurroundedBy1orMoreLumberYardAnd1OrMoreAcresWithTrees
+				.test(a)) {
 				a = new Ground(c);
 			}
 			return a;

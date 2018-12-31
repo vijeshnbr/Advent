@@ -3,6 +3,7 @@ package com.vn.advent.solution;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,22 +22,29 @@ public class Day5 implements Solution {
 		.compile(REGEX_OPPOSITE_POLARITY_PAIR);
 
 	public static void main(String[] args) {
+		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day5();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
-	public void partOne(Stream<String> lines) {
-		lines.map(this::reactPolymer)
+	public String partOne(Stream<String> lines) {
+		return lines.map(this::reactPolymer)
+			.peek(LOGGER::info)
 			.map(String::length)
-			.forEach(System.out::print);
+			.map(String::valueOf)
+			.reduce((f, s) -> s)
+			.get();
 	}
 
-	public void partTwo(Stream<String> lines) {
-		lines.map(this::performBestReaction)
+	public String partTwo(Stream<String> lines) {
+		return lines.map(this::performBestReaction)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
+			.peek(LOGGER::info)
 			.map(String::length)
-			.forEach(System.out::print);
+			.map(String::valueOf)
+			.reduce((f, s) -> s)
+			.get();
 	}
 
 	private Optional<String> performBestReaction(String polymer) {

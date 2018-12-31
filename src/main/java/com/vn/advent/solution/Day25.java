@@ -14,11 +14,11 @@ public class Day25 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day25();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		List<Point> points = lines.map(Point::new)
 			.collect(Collectors.toList());
 		Set<Constellation> constellations = new HashSet<>();
@@ -35,13 +35,12 @@ public class Day25 implements Solution {
 			rest.add(merged.orElse(Constellation.of(p)));
 			constellations = rest;
 		}
-		System.out.print(constellations.size());
+		return String.valueOf(constellations.size());
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
-		// TODO Auto-generated method stub
-
+	public String partTwo(Stream<String> lines) {
+		return "TRIGGERED UNDERFLOW to RETURN BACK to 2018 - time for New Year 2019!!";
 	}
 
 	static class Constellation {
@@ -124,7 +123,8 @@ public class Day25 implements Solution {
 		}
 
 		int distanceTo(Point other) {
-			return Math.abs(other.x - x) + Math.abs(other.y - y) + Math.abs(other.z - z) + Math.abs(other.t - t);
+			return Math.abs(other.x - x) + Math.abs(other.y - y)
+					+ Math.abs(other.z - z) + Math.abs(other.t - t);
 		}
 
 		@Override

@@ -30,14 +30,15 @@ public class Day7 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day7();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		inititalize(lines);
+		StringBuilder result = new StringBuilder();
 		while (!stepQueue.isEmpty()) {
 			Step step = stepQueue.poll();
-			System.out.print(step.execute());
+			result.append(step.execute());
 			step.parentSteps.stream()
 				.forEach(parent -> {
 					if (parent.isAvailable()) {
@@ -45,9 +46,10 @@ public class Day7 implements Solution {
 					}
 				});
 		}
+		return result.toString();
 	}
 
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		inititalize(lines);
 		int totalTime = 0;
 		while (!stepQueue.isEmpty()) {
@@ -88,7 +90,7 @@ public class Day7 implements Solution {
 
 			}
 		}
-		System.out.print(totalTime);
+		return String.valueOf(totalTime);
 	}
 
 	public static class Worker {

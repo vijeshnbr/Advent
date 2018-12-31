@@ -17,11 +17,11 @@ public class Day3 implements Solution {
 
 	public static void main(String[] args) {
 		Solution solution = new Day3();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		long areaClaimedMultipleTimes = lines.map(this::extractParams)
 			.map(Claim::getAllCoordinates)
 			.flatMap(List::stream)
@@ -31,11 +31,11 @@ public class Day3 implements Solution {
 			.stream()
 			.filter(count -> count > 1)
 			.count();
-		System.out.print(areaClaimedMultipleTimes);
+		return String.valueOf(areaClaimedMultipleTimes);
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 
 		List<Claim> listOfAllClaims = lines.map(this::extractParams)
 			.collect(Collectors.toList());
@@ -51,12 +51,13 @@ public class Day3 implements Solution {
 			.map(Map.Entry::getKey)
 			.collect(Collectors.toSet());
 
-		listOfAllClaims.stream()
+		return listOfAllClaims.stream()
 			.filter(claim -> checkIfClaimDoesntOverlap(claim,
 					setOfCoordinatesWithSingleClaim))
 			.map(claim -> claim.id)
 			.findFirst()
-			.ifPresent(System.out::print);
+			.map(String::valueOf)
+			.get();
 	}
 
 	private boolean checkIfClaimDoesntOverlap(Claim claim,

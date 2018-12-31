@@ -9,40 +9,50 @@ import com.vn.advent.util.FileUtil;
 
 public interface Solution {
 
-	public static final Logger LOGGER = Logger.getLogger(Solution.class.getName());
+	public static final Logger LOGGER = Logger
+		.getLogger(Solution.class.getName());
 
-	public default void run() {
-		System.out.println("Running " + getClass().getSimpleName()
+	public default String run() {
+		StringBuilder s = new StringBuilder();
+		s.append("Running " + getClass().getSimpleName()
 			.toUpperCase());
-		runWithInput(getInputFileName());
-		System.out.println();
+		s.append("\n");
+		s.append(runWithInput(getInputFileName()));
+		s.append("\n");
+		return s.toString();
 	}
 
-	public default void runWithInput(String input) {
-		System.out.print("PART 1 : ");
+	public default String runWithInput(String input) {
+		StringBuilder s = new StringBuilder();
+		s.append("PART 1 : ");
 		Instant startPartOne = Instant.now();
-		FileUtil.runCodeForLinesInFile(input, this::partOne);
+		s.append(FileUtil.runCodeForLinesInFile(input, this::partOne));
 		Instant finishPartOne = Instant.now();
-		printDurationOfExecution(startPartOne, finishPartOne);
-		System.out.println();
-		System.out.print("PART 2 : ");
+		s.append(printDurationOfExecution(startPartOne, finishPartOne));
+		s.append("\n");
+		s.append("PART 2 : ");
 		Instant startPartTwo = Instant.now();
-		FileUtil.runCodeForLinesInFile(input, this::partTwo);
+		s.append(FileUtil.runCodeForLinesInFile(input, this::partTwo));
 		Instant finishPartTwo = Instant.now();
-		printDurationOfExecution(startPartTwo, finishPartTwo);
-		System.out.println();
+		s.append(printDurationOfExecution(startPartTwo, finishPartTwo));
+		s.append("\n");
+		return s.toString();
 	}
 
-	public void partOne(Stream<String> lines);
+	public String partOne(Stream<String> lines);
 
-	public void partTwo(Stream<String> lines);
+	public String partTwo(Stream<String> lines);
 
 	public String getInputFileName();
 
-	public static void printDurationOfExecution(Instant start, Instant finish) {
-		System.out.println();
-		System.out.print(String.format("Finished in %d ms", Duration.between(start, finish)
-			.toMillis()));
+	public static String printDurationOfExecution(Instant start,
+			Instant finish) {
+		StringBuilder s = new StringBuilder();
+		s.append("\n");
+		s.append(String.format("Finished in %d ms",
+				Duration.between(start, finish)
+					.toMillis()));
+		return s.toString();
 	}
 
 }

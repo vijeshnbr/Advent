@@ -16,34 +16,51 @@ import java.util.stream.Stream;
 
 public class Day17 implements Solution {
 
-	private static final Pattern COORDINATES_X_FIRST = Pattern.compile("x.(\\d+).{2}y.(\\d+)\\.{2}(\\d+)$");
-	private static final Pattern COORDINATES_Y_FIRST = Pattern.compile("y.(\\d+).{2}x.(\\d+)\\.{2}(\\d+)$");
+	private static final Pattern COORDINATES_X_FIRST = Pattern
+		.compile("x.(\\d+).{2}y.(\\d+)\\.{2}(\\d+)$");
+	private static final Pattern COORDINATES_Y_FIRST = Pattern
+		.compile("y.(\\d+).{2}x.(\\d+)\\.{2}(\\d+)$");
 
 	private static final Map<Coordinates, Soil> clays = new HashMap<>();
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day17();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		initialize(lines);
-
 		IntSummaryStatistics summary = clays.keySet()
 			.stream()
 			.mapToInt(c -> c.y)
 			.summaryStatistics();
 		int minY = summary.getMin();
 		int maxY = summary.getMax() + 1;
-
 		Coordinates start = new Coordinates(500, minY);
-
 		int waterySquares = calcArea(start, maxY);
+		return String.valueOf(waterySquares);
+	}
 
-		System.out.println(waterySquares);
-
+	@Override
+	public String partTwo(Stream<String> lines) {
+		initialize(lines);
+		IntSummaryStatistics summary = clays.keySet()
+			.stream()
+			.mapToInt(c -> c.y)
+			.summaryStatistics();
+		int minY = summary.getMin();
+		int maxY = summary.getMax() + 1;
+		Coordinates start = new Coordinates(500, minY);
+		Map<Coordinates, Soil> waterySoil = new HashMap<>();
+		flow(start, waterySoil, maxY);
+		long retainedWater = waterySoil.values()
+			.stream()
+			.map(Soil::type)
+			.filter(Type.WATER::equals)
+			.count();
+		return String.valueOf(retainedWater);
 	}
 
 	private void initialize(Stream<String> lines) {
@@ -52,32 +69,8 @@ public class Day17 implements Solution {
 			.flatMap(Set::stream)
 			.distinct()
 			.map(Clay::new)
-			.collect(Collectors.toMap(Soil::getCoordinates, Function.identity())));
-	}
-
-	@Override
-	public void partTwo(Stream<String> lines) {
-		initialize(lines);
-
-		IntSummaryStatistics summary = clays.keySet()
-			.stream()
-			.mapToInt(c -> c.y)
-			.summaryStatistics();
-		int minY = summary.getMin();
-		int maxY = summary.getMax() + 1;
-
-		Coordinates start = new Coordinates(500, minY);
-
-		Map<Coordinates, Soil> waterySoil = new HashMap<>();
-
-		flow(start, waterySoil, maxY);
-
-		long retainedWater = waterySoil.values()
-			.stream()
-			.map(Soil::type)
-			.filter(Type.WATER::equals)
-			.count();
-		System.out.println(retainedWater);
+			.collect(Collectors.toMap(Soil::getCoordinates,
+					Function.identity())));
 	}
 
 	private int calcArea(Coordinates start, int maxY) {
@@ -87,7 +80,8 @@ public class Day17 implements Solution {
 		return waterySoil.size();
 	}
 
-	private void flow(final Coordinates c, final Map<Coordinates, Soil> waterySoil, final int maxY) {
+	private void flow(final Coordinates c,
+			final Map<Coordinates, Soil> waterySoil, final int maxY) {
 		Coordinates curr = c;
 		if (curr.y >= maxY)
 			return;
@@ -147,7 +141,8 @@ public class Day17 implements Solution {
 
 		if (!tippedLeft && !tippedRight) {
 			// Change all WetSand in this line to Water
-			for (Coordinates start = left.right(); !start.equals(right); start = start.right()) {
+			for (Coordinates start = left.right(); !start
+				.equals(right); start = start.right()) {
 				Soil s = new Water(start);
 				waterySoil.put(start, s);
 			}

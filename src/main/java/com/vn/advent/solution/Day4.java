@@ -22,29 +22,28 @@ public class Day4 implements Solution {
 
 	public static void main(String[] args) {
 		Solution solution = new Day4();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
-
+	public String partOne(Stream<String> lines) {
 		List<Guard> listOfGuards = makeListOfGuards(lines);
 
 		Optional<Guard> guardWhoSleptMost = listOfGuards.stream()
 			.max(Comparator.comparing(Guard::getSleepTime));
 
-		if (guardWhoSleptMost.isPresent()) {
-			Guard guard = guardWhoSleptMost.get();
+		return guardWhoSleptMost.flatMap(guard -> {
 			int id = guard.getId();
-			getMinuteWhichWasSleptMostTimesForAGuard(guard)
+			return getMinuteWhichWasSleptMostTimesForAGuard(guard)
 				.map(minuteWhichWasSleptMostTimes -> id
 						* minuteWhichWasSleptMostTimes)
-				.ifPresent(System.out::print);
-		}
+				.map(String::valueOf);
+		})
+			.get();
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		List<Guard> listOfGuards = makeListOfGuards(lines);
 
 		Optional<Guard> guardWhoSleptMostForSameMinute = listOfGuards.stream()
@@ -53,15 +52,14 @@ public class Day4 implements Solution {
 			.max(Comparator.comparing(guard -> guard.getMaxOfSleepTime()
 				.get()));
 
-		if (guardWhoSleptMostForSameMinute.isPresent()) {
-			Guard guard = guardWhoSleptMostForSameMinute.get();
+		return guardWhoSleptMostForSameMinute.flatMap(guard -> {
 			int id = guard.getId();
-			getMinuteWhichWasSleptMostTimesForAGuard(guard)
+			return getMinuteWhichWasSleptMostTimesForAGuard(guard)
 				.map(minuteWhichWasSleptMostTimes -> id
 						* minuteWhichWasSleptMostTimes)
-				.ifPresent(System.out::print);
-		}
-
+				.map(String::valueOf);
+		})
+			.get();
 	}
 
 	private Optional<Integer> getMinuteWhichWasSleptMostTimesForAGuard(

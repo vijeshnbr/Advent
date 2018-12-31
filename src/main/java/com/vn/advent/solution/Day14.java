@@ -10,11 +10,11 @@ public class Day14 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day14();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 
 		Circle<Integer> recipeOneScore = new Circle<>(3);
 		Circle<Integer> recipeTwoScore = recipeOneScore.add(7);
@@ -23,6 +23,7 @@ public class Day14 implements Solution {
 		Circle<Integer> elfOne = recipeOneScore;
 		Circle<Integer> elfTwo = recipeTwoScore;
 		int recipeCounter = 2;
+		StringBuilder result = new StringBuilder();
 
 		int tenPlusInput = INPUT + 10;
 		while (true) {
@@ -32,7 +33,7 @@ public class Day14 implements Solution {
 				last = last.add(1);
 				recipeCounter++;
 				if (recipeCounter > INPUT && recipeCounter <= tenPlusInput) {
-					System.out.print(last.current);
+					result.append(last.current);
 				}
 				if (recipeCounter == tenPlusInput)
 					break;
@@ -40,7 +41,7 @@ public class Day14 implements Solution {
 			last = last.add(total % 10);
 			recipeCounter++;
 			if (recipeCounter > INPUT && recipeCounter <= tenPlusInput) {
-				System.out.print(last.current);
+				result.append(last.current);
 			}
 			if (recipeCounter == tenPlusInput)
 				break;
@@ -49,10 +50,11 @@ public class Day14 implements Solution {
 			elfOne = elfOne.getElementAfterNSteps(1 + elfOne.current);
 			elfTwo = elfTwo.getElementAfterNSteps(1 + elfTwo.current);
 		}
+		return result.toString();
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		Circle<Integer> recipeOneScore = new Circle<>(3);
 		Circle<Integer> recipeTwoScore = recipeOneScore.add(7);
 		String initialScore = "37";
@@ -63,37 +65,43 @@ public class Day14 implements Solution {
 		Circle<Integer> elfOne = recipeOneScore;
 		Circle<Integer> elfTwo = recipeTwoScore;
 		int recipeCounter = 2;
-
-		StringBuilder lastNoOfScoresAsDigitsInInput = new StringBuilder(initialScore);
+		String result = null;
+		StringBuilder lastNoOfScoresAsDigitsInInput = new StringBuilder(
+				initialScore);
 		while (true) {
 			// calculate new recipe score and add to end of scores
 			Integer total = elfOne.current + elfTwo.current;
 			if (total / 10 == 1) {
 				last = last.add(1);
 				recipeCounter++;
-				lastNoOfScoresAsDigitsInInput.append(Character.forDigit(last.current, 10));
+				lastNoOfScoresAsDigitsInInput
+					.append(Character.forDigit(last.current, 10));
 				if (lastNoOfScoresAsDigitsInInput.length() > length) {
-					lastNoOfScoresAsDigitsInInput = new StringBuilder(lastNoOfScoresAsDigitsInInput.substring(1));
+					lastNoOfScoresAsDigitsInInput = new StringBuilder(
+							lastNoOfScoresAsDigitsInInput.substring(1));
 				}
 				if (input.equals(lastNoOfScoresAsDigitsInInput.toString())) {
-					System.out.print(recipeCounter - length);
+					result = String.valueOf(recipeCounter - length);
 					break;
 				}
 			}
 			last = last.add(total % 10);
 			recipeCounter++;
-			lastNoOfScoresAsDigitsInInput.append(Character.forDigit(last.current, 10));
+			lastNoOfScoresAsDigitsInInput
+				.append(Character.forDigit(last.current, 10));
 			if (lastNoOfScoresAsDigitsInInput.length() > length) {
-				lastNoOfScoresAsDigitsInInput = new StringBuilder(lastNoOfScoresAsDigitsInInput.substring(1));
+				lastNoOfScoresAsDigitsInInput = new StringBuilder(
+						lastNoOfScoresAsDigitsInInput.substring(1));
 			}
 			if (input.equals(lastNoOfScoresAsDigitsInInput.toString())) {
-				System.out.print(recipeCounter - length);
+				result = String.valueOf(recipeCounter - length);
 				break;
 			}
 			// pick new recipes
 			elfOne = elfOne.getElementAfterNSteps(1 + elfOne.current);
 			elfTwo = elfTwo.getElementAfterNSteps(1 + elfTwo.current);
 		}
+		return result;
 	}
 
 	/**
@@ -173,7 +181,6 @@ public class Day14 implements Solution {
 			}
 			return sb.toString();
 		}
-
 	}
 
 	@Override

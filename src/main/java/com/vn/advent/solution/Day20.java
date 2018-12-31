@@ -19,25 +19,24 @@ public class Day20 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day20();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		Room origin = initialize(lines);
 
-		shortestPathsFrom(origin).values()
+		return String.valueOf(shortestPathsFrom(origin).values()
 			.stream()
 			.max(Integer::compare)
-			.ifPresent(System.out::print);
-
+			.get());
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		Room origin = initialize(lines);
 
-		System.out.print(shortestPathsFrom(origin).values()
+		return String.valueOf(shortestPathsFrom(origin).values()
 			.stream()
 			.filter(doors -> doors >= 1000)
 			.count());
@@ -53,7 +52,8 @@ public class Day20 implements Solution {
 		// from the given regex, representing the actions (go east, west,.. etc)
 		// in form of functions
 		// that need to be executed in input regex's order
-		TreeNode<Function<Room, Room>> start = new TreeNode<>(Function.identity());
+		TreeNode<Function<Room, Room>> start = new TreeNode<>(
+				Function.identity());
 		formMappingPipeline(start, regex);
 
 		// Form the actual map in the building so that each room is now linked
@@ -71,7 +71,8 @@ public class Day20 implements Solution {
 			Room curr = queue.poll();
 			for (Room neighbor : curr.neighbors()) {
 				if (!roomAndDistance.containsKey(neighbor)) {
-					roomAndDistance.put(neighbor, roomAndDistance.get(curr) + 1);
+					roomAndDistance.put(neighbor,
+							roomAndDistance.get(curr) + 1);
 					queue.offer(neighbor);
 				}
 			}
@@ -94,21 +95,21 @@ public class Day20 implements Solution {
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			switch (c) {
-			case 'E':
-				next = next.andThen(Building::east);
-				break;
-			case 'W':
-				next = next.andThen(Building::west);
-				break;
-			case 'N':
-				next = next.andThen(Building::north);
-				break;
-			case 'S':
-				next = next.andThen(Building::south);
-				break;
-			case '(':
-				branches = findChildren(i + 1, str);
-				break;
+				case 'E' :
+					next = next.andThen(Building::east);
+					break;
+				case 'W' :
+					next = next.andThen(Building::west);
+					break;
+				case 'N' :
+					next = next.andThen(Building::north);
+					break;
+				case 'S' :
+					next = next.andThen(Building::south);
+					break;
+				case '(' :
+					branches = findChildren(i + 1, str);
+					break;
 			}
 			if (branches != null)
 				break;
@@ -116,9 +117,11 @@ public class Day20 implements Solution {
 		start.data = next;
 		if (branches != null) {
 			for (String branch : branches.branches) {
-				TreeNode<Function<Room, Room>> branchStart = new TreeNode<>(Function.identity());
+				TreeNode<Function<Room, Room>> branchStart = new TreeNode<>(
+						Function.identity());
 				children.add(branchStart);
-				formMappingPipeline(branchStart, branch + str.substring(branches.endIndex, str.length()));
+				formMappingPipeline(branchStart, branch
+						+ str.substring(branches.endIndex, str.length()));
 			}
 		}
 	}
@@ -194,8 +197,9 @@ public class Day20 implements Solution {
 	}
 
 	static class Building {
-		public static Map<Coordinates, Room> map = new TreeMap<>(Comparator.comparing(Coordinates::getY)
-			.thenComparing(Coordinates::getX));
+		public static Map<Coordinates, Room> map = new TreeMap<>(
+				Comparator.comparing(Coordinates::getY)
+					.thenComparing(Coordinates::getX));
 
 		public static Room east(Room r) {
 			Room east = map.computeIfAbsent(r.loc.east(), Room::new);
@@ -273,8 +277,10 @@ public class Day20 implements Solution {
 
 		@Override
 		public String toString() {
-			return "Room [loc=" + loc + ", east=" + (east != null ? "Y" : "N") + ", west=" + (west != null ? "Y" : "N")
-					+ ", north=" + (north != null ? "Y" : "N") + ", south=" + (south != null ? "Y" : "N") + "]";
+			return "Room [loc=" + loc + ", east=" + (east != null ? "Y" : "N")
+					+ ", west=" + (west != null ? "Y" : "N") + ", north="
+					+ (north != null ? "Y" : "N") + ", south="
+					+ (south != null ? "Y" : "N") + "]";
 		}
 	}
 

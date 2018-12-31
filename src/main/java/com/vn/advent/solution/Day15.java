@@ -19,27 +19,29 @@ import java.util.stream.Stream;
 
 public class Day15 implements Solution {
 
-	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(Coordinates.compareLocations);
-	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(Coordinates.compareLocations);
-	private static final Predicate<Stats> ELVES_WON_AND_NO_ELVES_DIED = stats -> stats.winner() == Type.ELF
-			&& stats.elfNotDead();
+	private static final Map<Coordinates, OpenCavern> BATTLEFIELD = new TreeMap<>(
+			Coordinates.compareLocations);
+	private static final Map<Coordinates, Unit> ALL_INITIAL_UNITS = new TreeMap<>(
+			Coordinates.compareLocations);
+	private static final Predicate<Stats> ELVES_WON_AND_NO_ELVES_DIED = stats -> stats
+		.winner() == Type.ELF && stats.elfNotDead();
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day15();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		initializeBattlefieldAndUnits(lines);
 		Stats stats = battle();
 		LOGGER.log(Level.INFO, "{0}", stats);
-		System.out.print(stats.outcome());
+		return String.valueOf(stats.outcome());
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		initializeBattlefieldAndUnits(lines);
 		int elfPowerMin = 4;
 		int elfPowerMax = Integer.MAX_VALUE - elfPowerMin;
@@ -50,12 +52,12 @@ public class Day15 implements Solution {
 		while (true) {
 			Elf.AP = elfPowerMax;
 			statsMax = battle();
-			LOGGER.info(
-					"Max Stats ElfPower: " + elfPowerMax + ", " + statsMax + ", elfNotDead: " + statsMax.elfNotDead());
+			LOGGER.info("Max Stats ElfPower: " + elfPowerMax + ", " + statsMax
+					+ ", elfNotDead: " + statsMax.elfNotDead());
 			Elf.AP = elfPowerMin;
 			statsMin = battle();
-			LOGGER.info(
-					"Min Stats ElfPower: " + elfPowerMin + ", " + statsMin + ", elfNotDead: " + statsMin.elfNotDead());
+			LOGGER.info("Min Stats ElfPower: " + elfPowerMin + ", " + statsMin
+					+ ", elfNotDead: " + statsMin.elfNotDead());
 			if (ELVES_WON_AND_NO_ELVES_DIED.test(statsMin)) {
 				break;
 			} else {
@@ -68,7 +70,7 @@ public class Day15 implements Solution {
 				}
 			}
 		}
-		System.out.print(statsMin.outcome());
+		return String.valueOf(statsMin.outcome());
 	}
 
 	private Stats battle() {
@@ -109,7 +111,8 @@ public class Day15 implements Solution {
 				}
 
 				// See if enemy in range and attack
-				boolean attacked = attackIfEnemyInRange(remainingUnits, enemyUnits, deadUnits, u);
+				boolean attacked = attackIfEnemyInRange(remainingUnits,
+						enemyUnits, deadUnits, u);
 
 				if (!attacked) {
 					// If not attacked an enemy - then move according to below
@@ -186,9 +189,11 @@ public class Day15 implements Solution {
 					// in shortest paths should be broken by choosing the path
 					// that leads to a square in range of enemy - such that
 					// square is first in reading order among all tied cases
-					Optional<Coordinates> moveTo = mapOfMoveToAndEnemyRange.entrySet()
+					Optional<Coordinates> moveTo = mapOfMoveToAndEnemyRange
+						.entrySet()
 						.stream()
-						.min(Map.Entry.comparingByValue(Coordinates.compareLocations))
+						.min(Map.Entry
+							.comparingByValue(Coordinates.compareLocations))
 						.map(Map.Entry::getKey);
 					if (moveTo.isPresent()) {
 						Coordinates move = moveTo.get();
@@ -200,7 +205,8 @@ public class Day15 implements Solution {
 						// in its current turn, then don't end turn yet, but
 						// attack enemy and end turn
 						if (move.equals(mapOfMoveToAndEnemyRange.get(move))) {
-							attackIfEnemyInRange(remainingUnits, enemyUnits, deadUnits, u);
+							attackIfEnemyInRange(remainingUnits, enemyUnits,
+									deadUnits, u);
 						}
 					}
 				}
@@ -220,7 +226,8 @@ public class Day15 implements Solution {
 		final Map<Coordinates, Unit> remainingUnits;
 		final Set<Unit> deadUnits;
 
-		Stats(int rounds, Map<Coordinates, Unit> remainingUnits, Set<Unit> deadUnits) {
+		Stats(int rounds, Map<Coordinates, Unit> remainingUnits,
+				Set<Unit> deadUnits) {
 			this.rounds = rounds;
 			this.remainingUnits = remainingUnits;
 			this.deadUnits = deadUnits;
@@ -249,12 +256,13 @@ public class Day15 implements Solution {
 
 		@Override
 		public String toString() {
-			return "Stats [rounds=" + rounds + ", winner=" + winner() + ", outcome=" + outcome() + "]";
+			return "Stats [rounds=" + rounds + ", winner=" + winner()
+					+ ", outcome=" + outcome() + "]";
 		}
 	}
 
-	private boolean attackIfEnemyInRange(Map<Coordinates, Unit> remainingUnits, Set<Unit> enemyUnits,
-			Set<Unit> deadUnits, Unit u) {
+	private boolean attackIfEnemyInRange(Map<Coordinates, Unit> remainingUnits,
+			Set<Unit> enemyUnits, Set<Unit> deadUnits, Unit u) {
 		// Get closest enemy unit in range of current unit, if multiple
 		// get enemy with fewest hit points, if tied - get first
 		// in reading order. It is an optional as enemy may not be
@@ -529,7 +537,8 @@ public class Day15 implements Solution {
 
 	static class Coordinates {
 
-		public static final Comparator<Coordinates> compareLocations = Comparator.comparing(Coordinates::getY)
+		public static final Comparator<Coordinates> compareLocations = Comparator
+			.comparing(Coordinates::getY)
 			.thenComparing(Coordinates::getX);
 
 		final int x, y;
@@ -610,7 +619,8 @@ public class Day15 implements Solution {
 	}
 
 	private Map<Coordinates, Unit> copyOfTreeMapOfAllInitialUnits() {
-		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(Coordinates.compareLocations);
+		Map<Coordinates, Unit> remainingUnits = new TreeMap<>(
+				Coordinates.compareLocations);
 		ALL_INITIAL_UNITS.entrySet()
 			.stream()
 			.forEach(e -> remainingUnits.put(e.getKey(), e.getValue()
@@ -648,5 +658,4 @@ public class Day15 implements Solution {
 	public String getInputFileName() {
 		return "input_15";
 	}
-
 }

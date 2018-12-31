@@ -30,11 +30,11 @@ public class Day24 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day24();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		String input = lines.collect(Collectors.joining("SEPARATOR"));
 		String[] armies = input.split("SEPARATORSEPARATOR");
 		List<Group> inputImmuneSystems = Stream.of(armies[0].split("SEPARATOR"))
@@ -46,11 +46,12 @@ public class Day24 implements Solution {
 			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 		Outcome outcome = battle(inputImmuneSystems, inputInfections);
-		System.out.print(outcome.unitsInWinningArmy);
+		LOGGER.log(Level.INFO, "Outcome: {0}", outcome);
+		return String.valueOf(outcome.unitsInWinningArmy);
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		String input = lines.collect(Collectors.joining("SEPARATOR"));
 		String[] armies = input.split("SEPARATORSEPARATOR");
 		List<Group> inputImmuneSystems = Stream.of(armies[0].split("SEPARATOR"))
@@ -86,8 +87,10 @@ public class Day24 implements Solution {
 				maxBoost *= 2;
 			}
 		}
-		if (minOutcome != null)
-			System.out.print(minOutcome.unitsInWinningArmy);
+		LOGGER.log(Level.INFO, "Outcome: {0}", minOutcome);
+		return minOutcome != null
+				? String.valueOf(minOutcome.unitsInWinningArmy)
+				: "";
 	}
 
 	private Outcome battle(List<Group> immuneSystemsInput,

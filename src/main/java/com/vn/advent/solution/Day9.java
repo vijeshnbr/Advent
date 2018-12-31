@@ -15,51 +15,67 @@ public class Day9 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day9();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		int lastMarble = LAST_MARBLE;
 		int totalPlayers = TOTAL_PLAYERS;
 		// BEGIN GAME
 		playerAndScore.clear();
 		playGame(lastMarble, totalPlayers);
+
+		// TODO: Refactor code to return the score - return copy of player and
+		// score map
+
 		// GET SCORE
-		printScore();
+		return String.valueOf(playerAndScore.entrySet()
+			.stream()
+			.filter(e -> Objects.nonNull(e.getValue()))
+			.max(Map.Entry.comparingByValue())
+			.map(Map.Entry::getValue)
+			.get());
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		int lastMarble = LAST_MARBLE * 100;
 		int totalPlayers = TOTAL_PLAYERS;
 		// BEGIN GAME
 		playerAndScore.clear();
 		playGame(lastMarble, totalPlayers);
-		// GET SCORE
-		printScore();
-	}
 
-	private void printScore() {
-		playerAndScore.entrySet()
+		// TODO: Refactor code to return the score - return copy of player and
+		// score map
+
+		// GET SCORE
+		return String.valueOf(playerAndScore.entrySet()
 			.stream()
 			.filter(e -> Objects.nonNull(e.getValue()))
 			.max(Map.Entry.comparingByValue())
 			.map(Map.Entry::getValue)
-			.ifPresent(System.out::print);
+			.get());
 	}
 
 	private void playGame(int lastMarble, int totalPlayers) {
 		Circle<Marble> originalHead = new Circle<>(new Marble(0));
 		Circle<Marble> currentHead = originalHead;
 		for (int i = 1; i <= lastMarble; i++) {
-			final int playerId = (i % totalPlayers == 0) ? totalPlayers : i % totalPlayers;
+			final int playerId = (i % totalPlayers == 0)
+					? totalPlayers
+					: i % totalPlayers;
 			final Marble marbleToPlay = new Marble(i);
 			if (marbleToPlay.isMultipleOf23()) {
-				playerAndScore.compute(playerId, (k, v) -> (v == null) ? marbleToPlay.value : v + marbleToPlay.value);
+				playerAndScore.compute(playerId,
+						(k, v) -> (v == null)
+								? marbleToPlay.value
+								: v + marbleToPlay.value);
 				Circle<Marble> seventhPrevious = currentHead.findPrevious(7);
 				playerAndScore.compute(playerId,
-						(k, v) -> (v == null) ? seventhPrevious.current.value : v + seventhPrevious.current.value);
+						(k, v) -> (v == null)
+								? seventhPrevious.current.value
+								: v + seventhPrevious.current.value);
 				currentHead = seventhPrevious.remove();
 			} else {
 				currentHead = currentHead.add(marbleToPlay);

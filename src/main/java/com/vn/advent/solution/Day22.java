@@ -17,11 +17,11 @@ public class Day22 implements Solution {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.OFF);
 		Solution solution = new Day22();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
 	@Override
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		for (int x = Cave.MOUTH.loc.x; x <= Cave.TARGET.loc.x; x++) {
 			for (int y = Cave.MOUTH.loc.y; y <= Cave.TARGET.loc.y; y++) {
 				Coordinates c = new Coordinates(x, y);
@@ -29,16 +29,17 @@ public class Day22 implements Solution {
 			}
 		}
 
-		System.out.print(Cave.map.values()
+		return String.valueOf(Cave.map.values()
 			.stream()
 			.mapToInt(Region::getRiskLevel)
 			.sum());
 	}
 
 	@Override
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 
-		Queue<Node> queue = new PriorityQueue<>(Comparator.comparing(Node::getMinutes));
+		Queue<Node> queue = new PriorityQueue<>(
+				Comparator.comparing(Node::getMinutes));
 
 		Set<Node> visited = new HashSet<>();
 
@@ -73,21 +74,24 @@ public class Day22 implements Solution {
 			curr.region.getNeighbors()
 				.stream()
 				.filter(Region::isTraversable)
-				.filter(region -> region.getType().setOfValidToolsForRegionType.contains(curr.tool))
+				.filter(region -> region.getType().setOfValidToolsForRegionType
+					.contains(curr.tool))
 				.map(region -> new Node(region, curr.tool, curr.minutes + 1))
 				.filter(node -> !visited.contains(node))
 				.forEach(queue::offer);
 		}
-		System.out.print(mapOfNodeAndMinutes.get(target));
+		return String.valueOf(mapOfNodeAndMinutes.get(target));
 	}
 
 	static class Cave {
-		public static final Map<Coordinates, Region> map = new TreeMap<>(Comparator.comparing(Coordinates::getY)
-			.thenComparing(Coordinates::getX));
+		public static final Map<Coordinates, Region> map = new TreeMap<>(
+				Comparator.comparing(Coordinates::getY)
+					.thenComparing(Coordinates::getX));
 		public static final int DEPTH = 4848;
 
 		public static final Region MOUTH = new Region(new Coordinates(0, 0));
-		public static final Region TARGET = new Region(new Coordinates(15, 700));
+		public static final Region TARGET = new Region(
+				new Coordinates(15, 700));
 
 		static {
 			map.put(MOUTH.loc, MOUTH);
@@ -144,7 +148,8 @@ public class Day22 implements Solution {
 		Type type;
 		Integer geologicIndex, erosionLevel, riskLevel;
 
-		private static final Type[] types = new Type[] { Type.ROCKY, Type.WET, Type.NARROW };
+		private static final Type[] types = new Type[]{Type.ROCKY, Type.WET,
+				Type.NARROW};
 
 		Region(Coordinates loc) {
 			this.loc = loc;
@@ -189,9 +194,12 @@ public class Day22 implements Solution {
 				} else if (this.loc.x == 0) {
 					geologicIndex = this.loc.y * 48271;
 				} else {
-					Region left = Cave.map.computeIfAbsent(this.loc.left(), Region::new);
-					Region up = Cave.map.computeIfAbsent(this.loc.up(), Region::new);
-					geologicIndex = left.getErosionLevel() * up.getErosionLevel();
+					Region left = Cave.map.computeIfAbsent(this.loc.left(),
+							Region::new);
+					Region up = Cave.map.computeIfAbsent(this.loc.up(),
+							Region::new);
+					geologicIndex = left.getErosionLevel()
+							* up.getErosionLevel();
 				}
 			}
 			return geologicIndex;
@@ -312,7 +320,8 @@ public class Day22 implements Solution {
 	}
 
 	static enum Type {
-		ROCKY(Tool.TORCH, Tool.GEAR), WET(Tool.GEAR, Tool.NONE), NARROW(Tool.NONE, Tool.TORCH);
+		ROCKY(Tool.TORCH, Tool.GEAR), WET(Tool.GEAR,
+				Tool.NONE), NARROW(Tool.NONE, Tool.TORCH);
 
 		private Set<Tool> setOfValidToolsForRegionType;
 

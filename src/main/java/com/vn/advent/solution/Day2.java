@@ -12,10 +12,10 @@ public class Day2 implements Solution {
 
 	public static void main(String[] args) {
 		Solution solution = new Day2();
-		solution.run();
+		System.out.println(solution.run());
 	}
 
-	public void partOne(Stream<String> lines) {
+	public String partOne(Stream<String> lines) {
 		List<String> boxes = Collections
 			.unmodifiableList(lines.collect(Collectors.toList()));
 
@@ -27,18 +27,17 @@ public class Day2 implements Solution {
 			.count();
 		long checksum = twoCount * threeCount;
 
-		System.out.print(checksum);
+		return String.valueOf(checksum);
 	}
 
-	public void partTwo(Stream<String> lines) {
+	public String partTwo(Stream<String> lines) {
 		List<String> boxes = Collections
 			.unmodifiableList(lines.collect(Collectors.toList()));
-
 		int minLengthOfId = boxes.stream()
 			.map(String::length)
 			.min(Integer::compare)
 			.get();
-
+		String result = null;
 		for (int i = 0; i < minLengthOfId; i++) {
 			final int index = i;
 			Optional<String> commonLetters = boxes.stream()
@@ -50,11 +49,12 @@ public class Day2 implements Solution {
 				.filter(entry -> entry.getValue() == 2)
 				.map(Map.Entry::getKey)
 				.findFirst();
-
-			commonLetters.ifPresent(letters -> System.out.print(letters));
-			if (commonLetters.isPresent())
+			if (commonLetters.isPresent()) {
+				result = commonLetters.get();
 				break;
+			}
 		}
+		return result;
 	}
 
 	private static String removeCharAtIndex(String str, int index) {
