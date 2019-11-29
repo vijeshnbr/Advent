@@ -1,4 +1,6 @@
-package com.vn.advent.solution;
+package com.vn.advent.year_2018.solutions;
+
+import com.vn.advent.Solution;
 
 import java.util.Arrays;
 import java.util.List;
@@ -248,7 +250,7 @@ public class Day6 implements Solution {
 
 	@Override
 	public String getInputFileName() {
-		return "input_6";
+		return "2018/input_6";
 	}
 
 }

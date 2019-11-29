@@ -2,76 +2,72 @@ package com.vn.advent;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-import com.vn.advent.solution.Day1;
-import com.vn.advent.solution.Day10;
-import com.vn.advent.solution.Day12;
-import com.vn.advent.solution.Day13;
-import com.vn.advent.solution.Day14;
-import com.vn.advent.solution.Day15;
-import com.vn.advent.solution.Day16;
-import com.vn.advent.solution.Day17;
-import com.vn.advent.solution.Day18;
-import com.vn.advent.solution.Day2;
-import com.vn.advent.solution.Day20;
-import com.vn.advent.solution.Day22;
-import com.vn.advent.solution.Day23;
-import com.vn.advent.solution.Day24;
-import com.vn.advent.solution.Day25;
-import com.vn.advent.solution.Day3;
-import com.vn.advent.solution.Day4;
-import com.vn.advent.solution.Day5;
-import com.vn.advent.solution.Day6;
-import com.vn.advent.solution.Day7;
-import com.vn.advent.solution.Day8;
-import com.vn.advent.solution.Day9;
-import com.vn.advent.solution.Solution;
+import com.vn.advent.year_2018.solutions.*;
 
 public class Advent {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		Solution.LOGGER.setLevel(Level.OFF);
+        Solution.LOGGER.setLevel(Level.OFF);
 
-		List<Supplier<Solution>> solutions = new ArrayList<>();
-		solutions.add(Day1::new);
-		solutions.add(Day2::new);
-		solutions.add(Day3::new);
-		solutions.add(Day4::new);
-		solutions.add(Day5::new);
-		solutions.add(Day6::new);
-		solutions.add(Day7::new);
-		solutions.add(Day8::new);
-		solutions.add(Day9::new);
-		solutions.add(Day10::new);
-		solutions.add(Day12::new);
-		solutions.add(Day13::new);
-		solutions.add(Day14::new);
-		solutions.add(Day15::new);
-		solutions.add(Day16::new);
-		solutions.add(Day17::new);
-		solutions.add(Day18::new);
-		solutions.add(Day20::new);
-		solutions.add(Day22::new);
-		solutions.add(Day23::new);
-		solutions.add(Day24::new);
-		solutions.add(Day25::new);
+        //solve(getSolutions_2018());
+        solve(getSolutions_2019());
 
-		System.out.println("RUNNING ALL SOLUTIONS..");
-		Instant start = Instant.now();
-		solutions.stream()
-			.parallel()
-			.map(Supplier::get)
-			.map(Solution::run)
-			.forEach(System.out::println);
-		Instant end = Instant.now();
-		System.out
-			.println("Total execution time: " + Duration.between(start, end)
-				.toMillis());
-	}
+    }
+
+    private static Set<Supplier<Solution>> getSolutions_2019() {
+        Set<Supplier<Solution>> solutions_2019 = new HashSet<>();
+        solutions_2019.add(com.vn.advent.year_2019.solutions.Day1::new);
+        return solutions_2019;
+    }
+
+    private static Set<Supplier<Solution>> getSolutions_2018() {
+        Set<Supplier<Solution>> solutions_2018 = new HashSet<>();
+
+        solutions_2018.add(Day1::new);
+        solutions_2018.add(Day2::new);
+        solutions_2018.add(Day3::new);
+        solutions_2018.add(Day4::new);
+        solutions_2018.add(Day5::new);
+        solutions_2018.add(Day6::new);
+        solutions_2018.add(Day7::new);
+        solutions_2018.add(Day8::new);
+        solutions_2018.add(Day9::new);
+        solutions_2018.add(Day10::new);
+        solutions_2018.add(Day12::new);
+        solutions_2018.add(Day13::new);
+        solutions_2018.add(Day14::new);
+        solutions_2018.add(Day15::new);
+        solutions_2018.add(Day16::new);
+        solutions_2018.add(Day17::new);
+        solutions_2018.add(Day18::new);
+        solutions_2018.add(Day20::new);
+        solutions_2018.add(Day22::new);
+        solutions_2018.add(Day23::new);
+        solutions_2018.add(Day24::new);
+        solutions_2018.add(Day25::new);
+
+        return solutions_2018;
+    }
+
+    private static void solve(Set<Supplier<Solution>> solutions) {
+        System.out.println("RUNNING ALL SOLUTIONS..");
+        Instant start = Instant.now();
+        solutions
+                .stream()
+                .parallel()
+                .map(Supplier::get)
+                .map(Solution::run)
+                .forEach(System.out::println);
+        Instant end = Instant.now();
+        System.out
+                .println("Total execution time: " + Duration.between(start, end)
+                        .toMillis() + " ms");
+    }
 
 }

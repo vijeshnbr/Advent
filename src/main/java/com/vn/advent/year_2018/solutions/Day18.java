@@ -1,4 +1,6 @@
-package com.vn.advent.solution;
+package com.vn.advent.year_2018.solutions;
+
+import com.vn.advent.Solution;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -220,7 +222,7 @@ public class Day18 implements Solution {
 
 	@Override
 	public String getInputFileName() {
-		return "input_18";
+		return "2018/input_18";
 	}
 
 	static enum Type {

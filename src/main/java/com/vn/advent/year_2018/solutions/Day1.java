@@ -1,4 +1,4 @@
-package com.vn.advent.solution;
+package com.vn.advent.year_2018.solutions;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.vn.advent.Solution;
 import com.vn.advent.util.FileUtil;
 
 public class Day1 implements Solution {
@@ -118,7 +119,7 @@ public class Day1 implements Solution {
 
 	@Override
 	public String getInputFileName() {
-		return "input_1";
+		return "2018/input_1";
 	}
 
 }

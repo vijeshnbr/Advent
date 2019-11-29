@@ -1,4 +1,4 @@
-package com.vn.advent.solution;
+package com.vn.advent.year_2018.solutions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
-import com.vn.advent.solution.Day11.Coordinates.Diagonal;
+import com.vn.advent.Solution;
+import com.vn.advent.year_2018.solutions.Day11.Coordinates.Diagonal;
 
 public class Day11 implements Solution {
 
@@ -247,7 +248,7 @@ public class Day11 implements Solution {
 	}
 	@Override
 	public String getInputFileName() {
-		return "input_11";
+		return "2018/input_11";
 	}
 
 }

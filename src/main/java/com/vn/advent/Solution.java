@@ -1,4 +1,4 @@
-package com.vn.advent.solution;
+package com.vn.advent;
 
 import java.time.Duration;
 import java.time.Instant;
