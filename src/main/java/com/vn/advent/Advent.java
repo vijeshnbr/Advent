@@ -15,8 +15,8 @@ public class Advent {
 
         Solution.LOGGER.setLevel(Level.OFF);
 
-        //solve(getSolutions_2018());
-        solve(getSolutions_2019());
+        solve(getSolutions_2018());
+        //solve(getSolutions_2019());
 
     }
 
@@ -27,32 +27,33 @@ public class Advent {
     }
 
     private static Set<Supplier<Solution>> getSolutions_2018() {
-        Set<Supplier<Solution>> solutions_2018 = new HashSet<>();
-
-        solutions_2018.add(Day1::new);
-        solutions_2018.add(Day2::new);
-        solutions_2018.add(Day3::new);
-        solutions_2018.add(Day4::new);
-        solutions_2018.add(Day5::new);
-        solutions_2018.add(Day6::new);
-        solutions_2018.add(Day7::new);
-        solutions_2018.add(Day8::new);
-        solutions_2018.add(Day9::new);
-        solutions_2018.add(Day10::new);
-        solutions_2018.add(Day12::new);
-        solutions_2018.add(Day13::new);
-        solutions_2018.add(Day14::new);
-        solutions_2018.add(Day15::new);
-        solutions_2018.add(Day16::new);
-        solutions_2018.add(Day17::new);
-        solutions_2018.add(Day18::new);
-        solutions_2018.add(Day20::new);
-        solutions_2018.add(Day22::new);
-        solutions_2018.add(Day23::new);
-        solutions_2018.add(Day24::new);
-        solutions_2018.add(Day25::new);
-
-        return solutions_2018;
+        return Set.of(
+                Day1::new,
+                Day2::new,
+                Day3::new,
+                Day4::new,
+                Day5::new,
+                Day6::new,
+                Day7::new,
+                Day8::new,
+                Day9::new,
+                Day10::new,
+                Day11::new,
+                Day12::new,
+                Day13::new,
+                Day14::new,
+                Day15::new,
+                Day16::new,
+                Day17::new,
+                Day18::new,
+                Day19::new,
+                Day20::new,
+                Day21::new,
+                Day22::new,
+                Day23::new,
+                Day24::new,
+                Day25::new
+        );
     }
 
     private static void solve(Set<Supplier<Solution>> solutions) {
