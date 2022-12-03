@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 
 public class Day3 implements Solution {
 
-	private static final BitSet BUCKET_1 = new BitSet(53);
-	private static final BitSet BUCKET_2 = new BitSet(53);
+	private static final BitSet FIRST_COMPARTMENT_OF_RUCKSACK = new BitSet(53);
+	private static final BitSet SECOND_COMPARTMENT_OF_RUCKSACK = new BitSet(53);
 
 	private static final BitSet ELF1_RUCKSACK = new BitSet(53);
 	private static final BitSet ELF2_RUCKSACK = new BitSet(53);
@@ -21,45 +21,24 @@ public class Day3 implements Solution {
 
 	public String partOne(Stream<String> lines) {
 		return String.valueOf(lines
-				.mapToInt(this::processLine)
+				.mapToInt(this::getPriorityOfCommonItemInRucksack)
 				.sum());
 	}
 
-	private int processLine(String line) {
-		final int bucketSize = line.length() / 2;
-		final String firstBucketItems = line.substring(0, bucketSize);
-		System.out.println(firstBucketItems);
-		final String secondBucketItems = line.substring(bucketSize);
-		System.out.println(secondBucketItems);
-		firstBucketItems.chars().
-				map(i -> {
-					if(i<97)
-						i = i-38;
-					else
-						i = i-96;
-					return i;
-				})
-				//.peek(num -> System.out.print(num +","))
-				.forEach(BUCKET_1::set);
-		//System.out.println("\n-----------------------");
-		secondBucketItems.chars().
-				map(i -> {
-					if(i<97)
-						i = i-38;
-					else
-						i = i-96;
-					return i;
-				})
-				//.peek(num -> System.out.print(num +","))
-				.forEach(BUCKET_2::set);
-		//System.out.println("\n-----------------------");
-		//System.out.println(BUCKET_1);
-		//System.out.println(BUCKET_2);
-		BUCKET_1.and(BUCKET_2);
-		//System.out.println(BUCKET_1);
-		final int priority = BUCKET_1.nextSetBit(0);
-		BUCKET_1.clear();
-		BUCKET_2.clear();
+	private int getPriorityOfCommonItemInRucksack(String rucksack) {
+		final int rucksackSize = rucksack.length() / 2;
+		final String firstCompartmentItems = rucksack.substring(0, rucksackSize);
+		final String secondCompartmentItems = rucksack.substring(rucksackSize);
+		firstCompartmentItems.chars()
+				.map(this::mapAsciiValueToPriorityValue)
+				.forEach(FIRST_COMPARTMENT_OF_RUCKSACK::set);
+		secondCompartmentItems.chars()
+				.map(this::mapAsciiValueToPriorityValue)
+				.forEach(SECOND_COMPARTMENT_OF_RUCKSACK::set);
+		FIRST_COMPARTMENT_OF_RUCKSACK.and(SECOND_COMPARTMENT_OF_RUCKSACK);
+		final int priority = FIRST_COMPARTMENT_OF_RUCKSACK.nextSetBit(0);
+		FIRST_COMPARTMENT_OF_RUCKSACK.clear();
+		SECOND_COMPARTMENT_OF_RUCKSACK.clear();
 		return priority;
 	}
 
@@ -77,48 +56,30 @@ public class Day3 implements Solution {
 	}
 
 	private int findPriorityOfBadgeOfGroup(List<String> elfGroupRuckSacks) {
-		elfGroupRuckSacks.get(0).chars().
-				map(i -> {
-					if(i<97)
-						i = i-38;
-					else
-						i = i-96;
-					return i;
-				})
-				//.peek(num -> System.out.print(num +","))
+		elfGroupRuckSacks.get(0).chars()
+				.map(this::mapAsciiValueToPriorityValue)
 				.forEach(ELF1_RUCKSACK::set);
-		//System.out.println("\n-----------------------");
-		elfGroupRuckSacks.get(1).chars().
-				map(i -> {
-					if(i<97)
-						i = i-38;
-					else
-						i = i-96;
-					return i;
-				})
-				//.peek(num -> System.out.print(num +","))
+		elfGroupRuckSacks.get(1).chars()
+				.map(this::mapAsciiValueToPriorityValue)
 				.forEach(ELF2_RUCKSACK::set);
-		//System.out.println("\n-----------------------");
-		//System.out.println(BUCKET_1);
-		//System.out.println(BUCKET_2);
-		elfGroupRuckSacks.get(2).chars().
-				map(i -> {
-					if(i<97)
-						i = i-38;
-					else
-						i = i-96;
-					return i;
-				})
-				//.peek(num -> System.out.print(num +","))
+		elfGroupRuckSacks.get(2).chars()
+				.map(this::mapAsciiValueToPriorityValue)
 				.forEach(ELF3_RUCKSACK::set);
 		ELF1_RUCKSACK.and(ELF2_RUCKSACK);
 		ELF1_RUCKSACK.and(ELF3_RUCKSACK);
-		//System.out.println(BUCKET_1);
 		final int priority = ELF1_RUCKSACK.nextSetBit(0);
 		ELF1_RUCKSACK.clear();
 		ELF2_RUCKSACK.clear();
 		ELF3_RUCKSACK.clear();
 		return priority;
+	}
+
+	private int mapAsciiValueToPriorityValue(int i) {
+		if(i <97)
+			i = i -38;
+		else
+			i = i -96;
+		return i;
 	}
 
 	@Override
