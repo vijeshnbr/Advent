@@ -28,19 +28,16 @@ public class Day4 implements Solution {
 				.filter(IS_ANY_RANGE_INCLUSIVE)
 				.count());
 	}
-
 	public String partTwo(Stream<String> lines) {
 		return String.valueOf(ALL_ELF_PAIRS
 				.stream()
 				.filter(IS_ANY_RANGE_OVERLAP.negate())
 				.count());
 	}
-
 	@Override
 	public String getInputFileName() {
 		return "2022/input_4";
 	}
-
 	private void initializeListOfElfPairs(Stream<String> lines) {
 		ALL_ELF_PAIRS = lines
 				.map(line -> PATTERN
@@ -66,7 +63,6 @@ public class Day4 implements Solution {
 			return this.lower>=given.lower && this.upper<=given.upper;
 		}
 	}
-
-	record Pair<T>(T first, T second) {}
+	private record Pair<T>(T first, T second) {}
 
 }
