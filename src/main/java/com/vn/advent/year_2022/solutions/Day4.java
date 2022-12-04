@@ -2,13 +2,9 @@ package com.vn.advent.year_2022.solutions;
 
 import com.vn.advent.Solution;
 
-import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
-import java.util.Spliterator;
 import java.util.function.Predicate;
 import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
