@@ -53,7 +53,7 @@ public class Day2 implements Solution {
 		return "2022/input_2";
 	}
 
-	private static enum Rps {
+	private enum Rps {
 		ROCK(1), PAPER(2), SCISSORS(3);
 		final Integer shapeScore;
 		Rps(Integer shapeScore){
@@ -69,7 +69,7 @@ public class Day2 implements Solution {
 		}
 	}
 
-	private static enum Round {
+	private enum Round {
 		WIN(6), LOSS(0), DRAW(3);
 		final Integer roundScore;
 		Round(Integer roundScore){
