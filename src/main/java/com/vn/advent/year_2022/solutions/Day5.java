@@ -28,11 +28,11 @@ public class Day5 implements Solution {
 		getInstructionStreamForCrateMover(input)
 				.forEach(instruction ->{
 							int noOfCratesToBeMoved = Integer.valueOf(instruction.get(0));
-							int sourceCrate = Integer.valueOf(instruction.get(1));
-							int destinationCrate = Integer.valueOf(instruction.get(2));
+							int sourceStack = Integer.valueOf(instruction.get(1));
+							int destinationStack = Integer.valueOf(instruction.get(2));
 							for(int i=0; i<noOfCratesToBeMoved; i++)
-								EVER_GIVEN.get(destinationCrate)
-										.addFirst(EVER_GIVEN.get(sourceCrate)
+								EVER_GIVEN.get(destinationStack)
+										.addFirst(EVER_GIVEN.get(sourceStack)
 												.removeFirst());
 						});
 
@@ -47,14 +47,14 @@ public class Day5 implements Solution {
 		getInstructionStreamForCrateMover(input)
 				.forEach(instruction ->{
 					int noOfCratesToBeMoved = Integer.valueOf(instruction.get(0));
-					int sourceCrate = Integer.valueOf(instruction.get(1));
-					int destinationCrate = Integer.valueOf(instruction.get(2));
+					int sourceStack = Integer.valueOf(instruction.get(1));
+					int destinationStack = Integer.valueOf(instruction.get(2));
 					for(int i=0; i<noOfCratesToBeMoved; i++)
-						EVER_GIVEN.get(sourceCrate).addLast(EVER_GIVEN.get(sourceCrate)
+						EVER_GIVEN.get(sourceStack).addLast(EVER_GIVEN.get(sourceStack)
 								.removeFirst());
 					for(int i=0; i<noOfCratesToBeMoved; i++)
-						EVER_GIVEN.get(destinationCrate)
-								.addFirst(EVER_GIVEN.get(sourceCrate)
+						EVER_GIVEN.get(destinationStack)
+								.addFirst(EVER_GIVEN.get(sourceStack)
 										.removeLast());
 				});
 
