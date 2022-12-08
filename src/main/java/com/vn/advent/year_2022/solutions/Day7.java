@@ -108,13 +108,6 @@ public class Day7 implements Solution {
 			return Stream.concat(descendants,
 					children.stream().filter(node -> node.data.isDirectory).map(node -> node.data));
 		}
-
-		@Override
-		public String toString() {
-			return "File{" +
-					"name='" + name + '\'' +
-					'}';
-		}
 	}
 
 	public static class TreeNode<T> {
